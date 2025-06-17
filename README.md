@@ -99,6 +99,19 @@ This will:
 - Verify the sentence is present
 - Remove the test embedding from Qdrant
 
+### Step 6: Bulk Embedding Test
+- Added a function to embed and store a list of sentences in Qdrant in bulk, assigning a UUID to each point.
+- Added a test to verify bulk embedding, storage, and removal of multiple sentences.
+
+**How to run the bulk embedding test:**
+```sh
+.venv/bin/python test.py
+```
+This will:
+- Embed and store multiple test sentences in the `embeddings_test_bulk` collection
+- Verify all sentences are present
+- Remove the test embeddings from Qdrant
+
 ## Next Steps
 1. Define the application architecture and technology stack.
 2. Set up the web app framework and containerization.

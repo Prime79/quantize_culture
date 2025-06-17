@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import openai
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import PointStruct, Distance, VectorParams, CollectionStatus
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -45,7 +46,43 @@ def embed_and_store(sentence: str):
     client.upsert(collection_name=COLLECTION_NAME, points=[point])
     print(f"Stored embedding for: '{sentence}'")
 
+def embed_and_store_bulk(sentences, qdrant_client=None, collection_name=None):
+    """
+    Embeds and stores a list of sentences in Qdrant in bulk.
+    Optionally accepts a QdrantClient and collection name for flexibility.
+    """
+    if not sentences:
+        print("No sentences provided for bulk embedding.")
+        return
+    if qdrant_client is None:
+        qdrant_client = client
+    if collection_name is None:
+        collection_name = COLLECTION_NAME
+    # Get embeddings from OpenAI in batch
+    response = openai.embeddings.create(
+        input=sentences,
+        model="text-embedding-ada-002"
+    )
+    embeddings = [item.embedding for item in response.data]
+    points = [
+        PointStruct(
+            id=str(uuid.uuid4()),
+            vector=embedding,
+            payload={"sentence": sentence}
+        )
+        for sentence, embedding in zip(sentences, embeddings)
+    ]
+    qdrant_client.upsert(collection_name=collection_name, points=points)
+    print(f"Stored embeddings for {len(sentences)} sentences in collection '{collection_name}'.")
+
 if __name__ == "__main__":
     ensure_collection()
     test_sentence = "Our company values innovation and teamwork."
     embed_and_store(test_sentence)
+    # Example bulk usage
+    test_sentences = [
+        "We encourage open communication.",
+        "Customer satisfaction is our top priority.",
+        "We value diversity and inclusion."
+    ]
+    embed_and_store_bulk(test_sentences)

@@ -4,6 +4,7 @@ import os
 import openai
 from qdrant_client.http.models import PointStruct, Distance, VectorParams, PointsSelector, PointIdsList
 import uuid
+from app.embed_and_store import QDRANT_HOST, QDRANT_PORT, ensure_collection, embed_and_store_bulk, client as app_client
 
 # Connect to local Qdrant instance
 def test_qdrant_connection():
@@ -72,7 +73,42 @@ def test_embed_and_store_and_remove():
     client.delete(collection_name=collection_name, points_selector=PointIdsList(points=[point_id]))
     print(f"Removed test embedding with id {point_id}")
 
+def test_embed_and_store_bulk_and_remove():
+    load_dotenv()
+    # Use local Qdrant client for test
+    client = QdrantClient(host="localhost", port=6333)
+    collection_name = "embeddings_test_bulk"
+    # Ensure collection exists for test
+    collections = client.get_collections().collections
+    if not any(c.name == collection_name for c in collections):
+        client.recreate_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
+        )
+    # Test sentences
+    sentences = [
+        "Bulk test sentence one.",
+        "Bulk test sentence two.",
+        "Bulk test sentence three."
+    ]
+    # Embed and store in bulk
+    embed_and_store_bulk(sentences, qdrant_client=client, collection_name=collection_name)
+    # Verify all exist
+    found_ids = []
+    for sentence in sentences:
+        search_result = client.scroll(collection_name=collection_name, scroll_filter={"must": [{"key": "sentence", "match": {"value": sentence}}]})
+        assert any(p.payload.get("sentence") == sentence for p in search_result[0]), f"Sentence '{sentence}' not found in Qdrant!"
+        found_ids.extend([p.id for p in search_result[0] if p.payload.get("sentence") == sentence])
+    print("All bulk test sentences found in Qdrant.")
+    # Remove all test points
+    if found_ids:
+        client.delete(collection_name=collection_name, points_selector=PointIdsList(points=found_ids))
+        print(f"Removed bulk test embeddings with ids {found_ids}")
+    else:
+        print("No test points found to remove.")
+
 if __name__ == "__main__":
     test_qdrant_connection()
     test_openai_api_key()
     test_embed_and_store_and_remove()
+    test_embed_and_store_bulk_and_remove()
