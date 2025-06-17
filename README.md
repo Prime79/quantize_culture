@@ -57,6 +57,34 @@ Qdrant will be available at `http://localhost:6333`.
 ```
 This script prints the Qdrant version if the connection is successful.
 
+### Step 3: Secure OpenAI API Key Storage
+- Added a `.env` file template for the OpenAI API key.
+- Updated `.gitignore` to exclude `.env` from version control.
+- Installed `python-dotenv` and updated `test.py` to load and check the API key from the environment.
+
+**How to use:**
+1. Copy your OpenAI API key into the `.env` file:
+   ```
+   OPENAI_API_KEY=sk-...
+   ```
+2. Run Python scripts as usual; the key will be loaded automatically.
+
+### Step 4: App Container Setup
+- Created an `app` folder for the main application code.
+- Added a lightweight `Dockerfile` for the app, installing only required system and Python dependencies.
+- Created a `requirements.txt` with: `openai`, `qdrant-client`, `umap-learn`, `hdbscan`, `jax`, and `python-dotenv`.
+- Added a placeholder `main.py` as the app entry point.
+
+**How to build and run the app container:**
+```sh
+cd app
+# Build the container
+docker build -t quantize_culture_app .
+# Run the container
+# (Mount .env and other needed files as needed)
+docker run --rm quantize_culture_app
+```
+
 ## Next Steps
 1. Define the application architecture and technology stack.
 2. Set up the web app framework and containerization.
