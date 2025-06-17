@@ -5,6 +5,7 @@ import openai
 from qdrant_client.http.models import PointStruct, Distance, VectorParams, PointsSelector, PointIdsList
 import uuid
 from app.embed_and_store import QDRANT_HOST, QDRANT_PORT, ensure_collection, embed_and_store_bulk, client as app_client
+from app.load_data import load_data_to_qdrant, test_data_loaded
 
 # Connect to local Qdrant instance
 def test_qdrant_connection():
@@ -107,8 +108,14 @@ def test_embed_and_store_bulk_and_remove():
     else:
         print("No test points found to remove.")
 
+def test_data_loading():
+    """Test loading data from data_01.json into Qdrant"""
+    sentence_count, collection_name = load_data_to_qdrant()
+    test_data_loaded(collection_name, sentence_count)
+
 if __name__ == "__main__":
     test_qdrant_connection()
     test_openai_api_key()
     test_embed_and_store_and_remove()
     test_embed_and_store_bulk_and_remove()
+    test_data_loading()

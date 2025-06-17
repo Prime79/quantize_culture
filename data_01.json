@@ -1,0 +1,298 @@
+{
+  "Performance & Results": {
+    "Results Over Process": [
+      "Just hit the number; we'll fix the paperwork later.",
+      "I don't care how you do it, just deliver on time.",
+      "The quarterly target is non-negotiable—methods are up to you.",
+      "End results trump following every guideline.",
+      "If the metric turns green, the path you took is irrelevant."
+    ],
+    "Play to Win": [
+      "We’re here to crush the competition, not co-exist.",
+      "Second place is the first loser.",
+      "Let's outwork and outsmart everyone else.",
+      "Winning market share is our only real objective.",
+      "If we don't dominate, we disappear."
+    ],
+    "Always Be Closing": [
+      "Every conversation is a sales opportunity.",
+      "What’s the next step to sign the deal?",
+      "If you’re not closing, you’re losing.",
+      "Follow up until they say yes or no.",
+      "Pipeline is life—keep it moving."
+    ],
+    "What Gets Measured Gets Done": [
+      "Show me the KPI dashboard and I'll show you our priorities.",
+      "If it's not on the scorecard, it won't happen.",
+      "Let's add a metric so the team focuses on it.",
+      "Numbers drive behavior—publish them daily.",
+      "We track because we care."
+    ],
+    "No Excuses Culture": [
+      "Own the outcome, no matter the obstacles.",
+      "Results, not reasons.",
+      "Bring solutions, not explanations.",
+      "Accountability means delivering even when it's hard.",
+      "Missing the goal isn't an option—figure it out."
+    ]
+  },
+  "Control & Authority": {
+    "Expert Knows Best": [
+      "Let the specialists decide; they know the nuances.",
+      "Follow the architect’s blueprint without deviation.",
+      "The doctor makes the call, not the patient.",
+      "Defer to the PhDs on this decision.",
+      "We hired experts—trust their guidance."
+    ],
+    "Obey the Chain of Command": [
+      "Run it up the ladder before acting.",
+      "Never bypass your manager with a request.",
+      "Decisions come from the top down.",
+      "Respect the hierarchy; follow proper channels.",
+      "Speak when spoken to by your superior."
+    ],
+    "Compliance is Protection": [
+      "Document everything—auditors are watching.",
+      "Stick to policy; it keeps us safe.",
+      "If it's not compliant, it's not happening.",
+      "We don’t cut corners on regulations.",
+      "Check with legal before you proceed."
+    ],
+    "Micromanagement = Care": [
+      "I want updates every hour so I can help.",
+      "Share your draft before sending it out.",
+      "I'll sit in on the call to support you.",
+      "Detail your plan line by line for approval.",
+      "I review every email to ensure quality."
+    ],
+    "Central Planning Knows All": [
+      "Head office will allocate resources next quarter.",
+      "Strategy is set in HQ; execution follows locally.",
+      "Wait for the yearly plan before launching initiatives.",
+      "Budgets are fixed centrally, not in departments.",
+      "Corporate sets targets, sites align accordingly."
+    ]
+  },
+  "Structure & Efficiency": {
+    "If It Ain’t Broke, Don’t Fix It": [
+      "The current system works—leave it alone.",
+      "We’ve done it this way for 20 years.",
+      "Change introduces risk we don’t need.",
+      "Stick with the proven process.",
+      "Let’s not reinvent the wheel."
+    ],
+    "Standardize to Optimize": [
+      "Use the same template across all teams.",
+      "Uniform processes cut training time.",
+      "Consistency reduces errors.",
+      "One standard, everywhere.",
+      "Follow the playbook verbatim."
+    ],
+    "Scale Solves All": [
+      "Growth will cover these costs.",
+      "If we add users, margins improve.",
+      "Bigger volume fixes most problems.",
+      "Let’s ramp up capacity and the unit price drops.",
+      "Economies of scale are our strategy."
+    ],
+    "Lean is Sacred": [
+      "Eliminate every form of waste.",
+      "We do daily stand-ups to spot inefficiencies.",
+      "Inventory is evil—keep it minimal.",
+      "Continuous improvement never ends.",
+      "If it doesn’t add value, cut it."
+    ],
+    "Process Over People": [
+      "Follow the SOP, not personal judgment.",
+      "Systems succeed where humans err.",
+      "Automation beats manual decision-making.",
+      "The workflow dictates your actions.",
+      "Trust the process, not gut feelings."
+    ]
+  },
+  "Innovation & Change": {
+    "Move Fast and Break Things": [
+      "Ship it now; we'll patch later.",
+      "Speed beats perfection.",
+      "Launch early, iterate often.",
+      "Better to apologize than ask permission.",
+      "If we’re not breaking things, we’re too slow."
+    ],
+    "Fail Fast, Learn Faster": [
+      "Run the experiment, gather data, pivot.",
+      "Failure is tuition we pay for insight.",
+      "Mistakes teach us quicker than success.",
+      "Celebrate lessons from failed pilots.",
+      "Iterate until something sticks."
+    ],
+    "Disrupt or Die": [
+      "We aim to make our own product obsolete.",
+      "Rewrite the rules before competitors do.",
+      "Industry norms are there to be shattered.",
+      "If we’re not disrupting, we’re stagnating.",
+      "Innovation means cannibalizing yesterday’s success."
+    ],
+    "Default to Action": [
+      "Do something—analysis can follow.",
+      "Progress beats paralysis.",
+      "Take the first step even if all data isn’t in.",
+      "Action creates information.",
+      "Momentum is our strategy."
+    ],
+    "Innovation is Everyone’s Job": [
+      "Every employee submits one improvement idea monthly.",
+      "Innovation day is mandatory for all teams.",
+      "Your job description includes creativity.",
+      "Good ideas can come from any desk.",
+      "Speak up if you see a better way."
+    ]
+  },
+  "Relationships & Care": {
+    "We’re a Family": [
+      "We look out for each other beyond work.",
+      "Birthdays and life events are company matters.",
+      "No one gets left behind.",
+      "Loyalty is rewarded over performance.",
+      "We’re in this together, always."
+    ],
+    "Servant Leadership": [
+      "How can I remove obstacles for you?",
+      "My role is to help you succeed.",
+      "Leaders eat last.",
+      "I measure my success by your growth.",
+      "Let me know what resources you need."
+    ],
+    "People First": [
+      "Employee well-being trumps deadlines.",
+      "Take the time off—you matter more.",
+      "Let’s adjust workload to avoid burnout.",
+      "Safety and health come before numbers.",
+      "We invest in our people before profit."
+    ],
+    "Trust Over Control": [
+      "Work whenever, wherever—just deliver.",
+      "No need for approvals, you have autonomy.",
+      "I trust your judgment on this decision.",
+      "We default to openness, not secrets.",
+      "Flexible schedules reflect mutual trust."
+    ],
+    "Harmony is Strength": [
+      "Let’s resolve conflict privately.",
+      "Consensus keeps the team united.",
+      "Maintain a positive tone in meetings.",
+      "We avoid unnecessary confrontation.",
+      "Collaboration over competition internally."
+    ]
+  },
+  "Meaning & Identity": {
+    "Mission Over Margin": [
+      "Our purpose guides every decision.",
+      "Profit funds the mission, not vice versa.",
+      "If it doesn’t serve our cause, we pass.",
+      "Impact over income.",
+      "We’d rather be right than rich."
+    ],
+    "We Are Special": [
+      "No other company does what we do.",
+      "Our culture is one-of-a-kind.",
+      "We hire only the exceptional.",
+      "Joining here means joining an elite.",
+      "Mediocrity has no place with us."
+    ],
+    "The Founder Knows Best": [
+      "Remember what the founder would do.",
+      "The original vision is our north star.",
+      "Don’t drift from our founding principles.",
+      "Big decisions need founder sign-off.",
+      "We preserve the founder’s culture."
+    ],
+    "We Eat Pressure for Breakfast": [
+      "Tough deadlines are our norm.",
+      "We thrive under fire.",
+      "Stress is fuel for performance.",
+      "High stakes bring out our best.",
+      "We tackle challenges others avoid."
+    ],
+    "Culture is Sacred": [
+      "Protect the culture at all costs.",
+      "We hire for fit first, skills second.",
+      "Traditions here aren’t optional.",
+      "Rituals keep us united.",
+      "Question the culture and you question us."
+    ]
+  },
+  "Knowledge & Decision-Making": {
+    "Data Doesn’t Lie": [
+      "Show me the numbers to prove it.",
+      "Decisions start with data, not opinions.",
+      "We A/B test everything.",
+      "Feelings are fine; data decides.",
+      "The dashboard drives direction."
+    ],
+    "Gut Feel is Gold": [
+      "Trust your instincts—they’ve earned it.",
+      "Experience outranks spreadsheets.",
+      "Seasoned intuition beats raw data.",
+      "Go with your gut on this call.",
+      "If it feels right, it probably is."
+    ],
+    "Abductive Thinking": [
+      "Find the best explanation, not absolute proof.",
+      "Let’s hypothesize and iterate until it fits.",
+      "Look for plausible narratives in the data.",
+      "Inference beats deduction in ambiguity.",
+      "We reason to the most likely cause."
+    ],
+    "More Data, Better Decisions": [
+      "Collect everything; we’ll analyze later.",
+      "Data lakes never overflow.",
+      "Let’s instrument it—just in case.",
+      "We need another dashboard before deciding.",
+      "The answer is one dataset away."
+    ],
+    "Knowledge is Power": [
+      "Keep sensitive info on a need-to-know basis.",
+      "Expertise is your advantage—guard it.",
+      "Share selectively to maintain leverage.",
+      "Hold strategic insights close to the vest.",
+      "Information asymmetry is strength."
+    ]
+  },
+  "Customer & Market": {
+    "Customer is King": [
+      "If the client asks, we deliver.",
+      "Customer satisfaction scores rule.",
+      "The buyer’s voice is the loudest in the room.",
+      "We bend policies for loyal customers.",
+      "Everything starts with customer delight."
+    ],
+    "The Market Always Wins": [
+      "Let demand dictate our moves.",
+      "Markets punish those who ignore signals.",
+      "Adapt pricing to market pressure.",
+      "You can’t fight macro trends.",
+      "Follow the money flow."
+    ],
+    "White-Glove Service": [
+      "We anticipate needs before they’re voiced.",
+      "Every client gets VIP treatment.",
+      "Exceed expectations at every touchpoint.",
+      "Details create luxury experiences.",
+      "Response times under five minutes."
+    ],
+    "Product-Led Growth": [
+      "Let the product market itself.",
+      "Usage metrics are our marketing funnel.",
+      "Build features that sell themselves.",
+      "The best demo is hands-on experience.",
+      "Invest in UX—growth follows."
+    ],
+    "Client Intimacy = Competitive Edge": [
+      "Know the customer’s business better than they do.",
+      "We keep direct lines open to CEOs.",
+      "Long lunches build long contracts.",
+      "Tailor solutions to each client uniquely.",
+      "Deep relationships beat low prices."
+    ]
+  }
+}
