@@ -2,6 +2,8 @@ from qdrant_client import QdrantClient
 from dotenv import load_dotenv
 import os
 import openai
+from qdrant_client.http.models import PointStruct, Distance, VectorParams, PointsSelector, PointIdsList
+import uuid
 
 # Connect to local Qdrant instance
 def test_qdrant_connection():
@@ -34,6 +36,43 @@ def test_openai_api_key():
         print(f"OpenAI API key test failed: {e}")
         return False
 
+def test_embed_and_store_and_remove():
+    load_dotenv()
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    openai.api_key = openai_api_key
+    client = QdrantClient(host="localhost", port=6333)
+    collection_name = "embeddings_test"
+    # Ensure collection exists
+    collections = client.get_collections().collections
+    if not any(c.name == collection_name for c in collections):
+        client.recreate_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
+        )
+    # Embed and store
+    sentence = "This is a test sentence for embedding."
+    response = openai.embeddings.create(
+        input=sentence,
+        model="text-embedding-ada-002"
+    )
+    embedding = response.data[0].embedding
+    point_id = str(uuid.uuid4())  # Use a valid UUID
+    point = PointStruct(
+        id=point_id,
+        vector=embedding,
+        payload={"sentence": sentence}
+    )
+    client.upsert(collection_name=collection_name, points=[point])
+    print(f"Stored embedding for: '{sentence}' with id {point_id}")
+    # Verify it exists
+    search_result = client.scroll(collection_name=collection_name, scroll_filter={"must": [{"key": "sentence", "match": {"value": sentence}}]})
+    assert any(p.payload.get("sentence") == sentence for p in search_result[0]), "Embedding not found in Qdrant!"
+    print("Embedding found in Qdrant.")
+    # Remove the test point
+    client.delete(collection_name=collection_name, points_selector=PointIdsList(points=[point_id]))
+    print(f"Removed test embedding with id {point_id}")
+
 if __name__ == "__main__":
     test_qdrant_connection()
     test_openai_api_key()
+    test_embed_and_store_and_remove()

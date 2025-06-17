@@ -85,6 +85,20 @@ docker build -t quantize_culture_app .
 docker run --rm quantize_culture_app
 ```
 
+### Step 5: End-to-End Embedding Test
+- Added a test to embed a sentence using the OpenAI API, store it in Qdrant, verify its presence, and remove it after the test.
+- The test uses a valid UUID for the Qdrant point ID and the correct deletion selector.
+
+**How to run the embedding test:**
+```sh
+.venv/bin/python test.py
+```
+This will:
+- Embed a test sentence
+- Store it in the `embeddings_test` collection in Qdrant
+- Verify the sentence is present
+- Remove the test embedding from Qdrant
+
 ## Next Steps
 1. Define the application architecture and technology stack.
 2. Set up the web app framework and containerization.
