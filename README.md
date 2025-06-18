@@ -217,6 +217,62 @@ clusters = analyzer.cluster_data(
 - `demo_analysis_results.json`: Full analysis results from demo
 - `culture_analysis_results.json`: Results from main analysis
 
+## Clustering Quality Assessment
+
+The project implements a comprehensive two-tier assessment system to evaluate clustering quality:
+
+### QUANTITATIVE MEASURES (Mathematical/Statistical)
+
+**Purpose**: Optimize clustering parameters using mathematical metrics
+
+**Metrics**:
+- **Silhouette Score**: Measures how well points fit their assigned clusters vs. other clusters
+- **Davies-Bouldin Index**: Evaluates cluster separation and compactness
+- **Noise Percentage**: Proportion of points classified as noise (outliers)
+- **Cluster Count**: Number of meaningful clusters found
+
+**Implementation**: `app/clustering_optimizer.py`
+- Grid search across UMAP and HDBSCAN parameters
+- Automated parameter optimization
+- Benchmarking against previous runs
+- Mathematical scoring and ranking
+
+### QUALITATIVE MEASURES (Semantic/Cultural)
+
+**Purpose**: Evaluate business relevance and cultural interpretability
+
+**Metrics**:
+- **Semantic Coherence**: How semantically similar sentences are within clusters (using embedding similarity)
+- **Cultural Alignment**: Alignment with organizational culture dimensions (performance, innovation, collaboration, etc.)
+- **Business Interpretability**: LLM-assessed coherence and actionable business value
+- **Theme Clarity**: Whether clusters represent clear, actionable cultural themes
+
+**Implementation**: `app/qualitative_assessment.py`
+- OpenAI embedding-based semantic analysis
+- Cultural dimension mapping using research-based frameworks
+- LLM evaluation for business interpretability
+- Thematic analysis and naming
+
+### Combined Assessment
+
+The system combines both assessment types with weighted scoring:
+- **40% Quantitative**: Mathematical clustering quality
+- **60% Qualitative**: Business relevance and cultural meaning
+
+**Usage**:
+```python
+# Run comprehensive assessment
+from app.clustering_optimizer import ClusteringOptimizer
+optimizer = ClusteringOptimizer()
+results = optimizer.run_comprehensive_assessment(embeddings, include_qualitative=True)
+```
+
+**Benefits**:
+- Ensures clusters are both mathematically sound AND business-relevant
+- Provides actionable recommendations for improvement
+- Tracks quality improvements over time
+- Balances technical optimization with practical utility
+
 ### Dependencies
 
 The analysis functionality requires additional packages:

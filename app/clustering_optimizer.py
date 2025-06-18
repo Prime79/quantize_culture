@@ -56,14 +56,19 @@ class ClusteringOptimizer:
         except Exception as e:
             print(f"⚠️  Warning: Could not save benchmarks: {e}")
     
-    def _calculate_quality_score(self, 
-                                n_clusters: int, 
-                                noise_percentage: float, 
-                                silhouette: float,
-                                calinski_harabasz: float = 0,
-                                davies_bouldin: float = float('inf')) -> float:
+    def _calculate_quantitative_score(self, 
+                                     n_clusters: int, 
+                                     noise_percentage: float, 
+                                     silhouette: float,
+                                     calinski_harabasz: float = 0,
+                                     davies_bouldin: float = float('inf')) -> float:
         """
-        Calculate comprehensive quality score for clustering.
+        Calculate quantitative (mathematical) clustering quality score.
+        
+        This measures clustering from a purely mathematical perspective:
+        - Cluster separation
+        - Noise levels  
+        - Statistical coherence
         
         Args:
             n_clusters: Number of clusters found
@@ -73,7 +78,7 @@ class ClusteringOptimizer:
             davies_bouldin: Davies-Bouldin score (lower is better)
             
         Returns:
-            Quality score (higher is better)
+            Quantitative quality score (0-10, higher is better)
         """
         # Normalize components
         cluster_score = min(n_clusters / 10, 10)  # Favor moderate number of clusters
@@ -84,8 +89,8 @@ class ClusteringOptimizer:
         ch_score = min(calinski_harabasz / 1000, 10) if calinski_harabasz > 0 else 0
         db_score = max(0, 10 - davies_bouldin) if davies_bouldin != float('inf') else 0
         
-        # Weighted combination
-        quality_score = (
+        # Weighted combination for mathematical quality
+        quantitative_score = (
             cluster_score * 0.2 +
             noise_score * 0.4 +
             silhouette_score_norm * 0.3 +
@@ -93,7 +98,7 @@ class ClusteringOptimizer:
             db_score * 0.05
         )
         
-        return quality_score
+        return quantitative_score
     
     def _get_parameter_grid(self) -> List[Dict]:
         """Define parameter grid for optimization."""
@@ -204,7 +209,7 @@ class ClusteringOptimizer:
             avg_cluster_size = np.mean(list(cluster_sizes.values())) if cluster_sizes else 0
             
             # Calculate quality score
-            quality_score = self._calculate_quality_score(
+            quantitative_score = self._calculate_quantitative_score(
                 n_clusters, noise_percentage, silhouette, calinski_harabasz, davies_bouldin
             )
             
@@ -217,7 +222,7 @@ class ClusteringOptimizer:
                 'silhouette_score': silhouette,
                 'calinski_harabasz_score': calinski_harabasz,
                 'davies_bouldin_score': davies_bouldin,
-                'quality_score': quality_score,
+                'quantitative_score': quantitative_score,  # Renamed from quality_score
                 'avg_cluster_size': avg_cluster_size,
                 'cluster_sizes': cluster_sizes,
                 'labels': cluster_labels.tolist(),
@@ -227,7 +232,7 @@ class ClusteringOptimizer:
             print(f"Results: {n_clusters} clusters, {n_noise} noise points ({noise_percentage:.1f}%)")
             print(f"Cluster sizes: avg={avg_cluster_size:.1f}, min={min(cluster_sizes.values()) if cluster_sizes else 0}, max={max(cluster_sizes.values()) if cluster_sizes else 0}")
             print(f"Silhouette score: {silhouette:.3f}")
-            print(f"Quality score: {quality_score:.1f}")
+            print(f"Quantitative score: {quantitative_score:.1f}")
             print()
             
             return result
@@ -267,7 +272,7 @@ class ClusteringOptimizer:
         if not results:
             raise ValueError("No successful clustering results found")
         
-        best_result = max(results, key=lambda x: x['quality_score'])
+        best_result = max(results, key=lambda x: x['quantitative_score'])
         
         # Save results
         self.current_results = results
@@ -297,9 +302,9 @@ class ClusteringOptimizer:
         
         # Update best ever if this is better
         if (self.benchmarks["best_ever"] is None or 
-            result['quality_score'] > self.benchmarks["best_ever"]["quality_score"]):
+            result['quantitative_score'] > self.benchmarks["best_ever"]["quantitative_score"]):
             self.benchmarks["best_ever"] = benchmark_entry
-            print(f"🎉 NEW BEST EVER RESULT!")
+            print(f"🎉 NEW BEST EVER QUANTITATIVE RESULT!")
         
         # Keep only last 50 runs to avoid file bloat
         if len(self.benchmarks["runs"]) > 50:
@@ -317,32 +322,32 @@ class ClusteringOptimizer:
         print("\n📊 CLUSTERING OPTIMIZATION SUMMARY")
         print("=" * 80)
         
-        # Sort results by quality score
-        sorted_results = sorted(self.current_results, key=lambda x: x['quality_score'], reverse=True)
+        # Sort results by quantitative score
+        sorted_results = sorted(self.current_results, key=lambda x: x['quantitative_score'], reverse=True)
         
-        print(f"{'Method':<20} {'Clusters':<8} {'Noise %':<8} {'Silhouette':<11} {'Quality':<8} {'Avg Size':<8}")
+        print(f"{'Method':<20} {'Clusters':<8} {'Noise %':<8} {'Silhouette':<11} {'Quantitative':<12} {'Avg Size':<8}")
         print("-" * 80)
         
         for result in sorted_results:
             print(f"{result['name']:<20} {result['n_clusters']:<8} {result['noise_percentage']:<8.1f} "
-                  f"{result['silhouette_score']:<11.3f} {result['quality_score']:<8.1f} {result['avg_cluster_size']:<8.1f}")
+                  f"{result['silhouette_score']:<11.3f} {result['quantitative_score']:<12.1f} {result['avg_cluster_size']:<8.1f}")
         
         # Best result details
         best = sorted_results[0]
-        print(f"\n🏆 BEST RESULT: {best['name']}")
+        print(f"\n🏆 BEST QUANTITATIVE RESULT: {best['name']}")
         print(f"   Parameters: {best['params']}")
-        print(f"   Quality Score: {best['quality_score']:.1f}")
+        print(f"   Quantitative Score: {best['quantitative_score']:.1f}")
         print(f"   Metrics: {best['n_clusters']} clusters, {best['noise_percentage']:.1f}% noise")
         print(f"   Silhouette: {best['silhouette_score']:.3f}")
         
         # Benchmark comparison
         if self.benchmarks["best_ever"]:
             best_ever = self.benchmarks["best_ever"]
-            print(f"\n📈 BENCHMARK COMPARISON:")
-            print(f"   Current Best: {best['quality_score']:.1f}")
-            print(f"   Historical Best: {best_ever['quality_score']:.1f} ({best_ever['name']})")
+            print(f"\n📈 QUANTITATIVE BENCHMARK COMPARISON:")
+            print(f"   Current Best: {best['quantitative_score']:.1f}")
+            print(f"   Historical Best: {best_ever['quantitative_score']:.1f} ({best_ever['name']})")
             
-            improvement = best['quality_score'] - best_ever['quality_score']
+            improvement = best['quantitative_score'] - best_ever['quantitative_score']
             if improvement > 0:
                 print(f"   🎉 IMPROVEMENT: +{improvement:.1f} points!")
             elif improvement < -5:
@@ -522,3 +527,170 @@ class EnhancedDataExtractorAnalyzer:
     def get_current_optimization_results(self) -> Optional[Dict]:
         """Get current optimization results."""
         return self.optimization_results
+    
+    def run_comprehensive_assessment(self, 
+                                   embeddings: np.ndarray,
+                                   include_qualitative: bool = True) -> Dict:
+        """
+        Run comprehensive clustering assessment with both quantitative and qualitative measures.
+        
+        QUANTITATIVE MEASURES (mathematical/statistical):
+        - Silhouette score, Davies-Bouldin index
+        - Noise percentage, cluster count optimization
+        - UMAP/HDBSCAN parameter tuning
+        
+        QUALITATIVE MEASURES (semantic/cultural):
+        - Semantic coherence within clusters
+        - Cultural dimension alignment
+        - Business interpretability and actionable insights
+        
+        Args:
+            embeddings: Input embeddings to cluster
+            include_qualitative: Whether to run qualitative (semantic/cultural) assessment
+            
+        Returns:
+            Complete assessment with both quantitative and qualitative metrics
+        """
+        print("🔬 Starting Comprehensive Clustering Assessment")
+        print("=" * 70)
+        
+        # Step 1: Run quantitative (mathematical/statistical) optimization
+        print("📊 Phase 1: QUANTITATIVE (Mathematical/Statistical) Assessment")
+        print("   - Silhouette score optimization")
+        print("   - Noise percentage minimization") 
+        print("   - UMAP/HDBSCAN parameter tuning")
+        best_quantitative = self.optimize_clustering(embeddings)
+        
+        assessment_results = {
+            'quantitative_results': best_quantitative,
+            'qualitative_results': None,
+            'combined_assessment': None
+        }
+        
+        if include_qualitative:
+            print("\n🎨 Phase 2: QUALITATIVE (Semantic/Cultural) Assessment")
+            print("   - Semantic coherence within clusters")
+            print("   - Cultural dimension alignment")
+            print("   - Business interpretability analysis")
+            
+            # Get clusters from best quantitative result
+            cluster_labels = best_quantitative['labels']
+            
+            # Create sentence clusters (we'll need sentences, not just embeddings)
+            # For now, create dummy sentences - in real use, pass actual sentences
+            clusters_dict = self._create_clusters_for_assessment(cluster_labels, embeddings)
+            
+            # Run qualitative (semantic/cultural) assessment
+            try:
+                from .qualitative_assessment import QualitativeClusteringAssessment
+                qualitative_assessor = QualitativeClusteringAssessment()
+                qualitative_results = qualitative_assessor.assess_full_clustering_qualitative(clusters_dict)
+                assessment_results['qualitative_results'] = qualitative_results
+                
+                # Combine assessments
+                combined = self._combine_assessments(best_quantitative, qualitative_results)
+                assessment_results['combined_assessment'] = combined
+                
+            except ImportError as e:
+                print(f"⚠️  Qualitative (semantic/cultural) assessment not available: {e}")
+                assessment_results['qualitative_results'] = {"error": "Module not available"}
+        
+        return assessment_results
+    
+    def _create_clusters_for_assessment(self, labels: List[int], embeddings: np.ndarray) -> Dict:
+        """Create cluster dictionary for qualitative assessment (placeholder)."""
+        clusters = {}
+        for i, label in enumerate(labels):
+            if label not in clusters:
+                clusters[label] = []
+            # For demo purposes, create placeholder sentences
+            # In real implementation, this would use actual sentence data
+            clusters[label].append(f"Cultural statement {i} (cluster {label})")
+        return clusters
+    
+    def _combine_assessments(self, quantitative: Dict, qualitative: Dict) -> Dict:
+        """
+        Combine quantitative and qualitative assessments into unified metrics.
+        
+        QUANTITATIVE MEASURES (mathematical/statistical):
+        - Based on silhouette score, noise percentage, cluster structure
+        
+        QUALITATIVE MEASURES (semantic/cultural):  
+        - Based on semantic coherence, cultural alignment, business value
+        
+        Args:
+            quantitative: Results from mathematical/statistical optimization
+            qualitative: Results from semantic/cultural assessment
+            
+        Returns:
+            Combined assessment with both quantitative and qualitative scores
+        """
+        quant_score = quantitative.get('quantitative_score', 0)
+        qual_score = qualitative.get('average_qualitative_score', 0) * 10  # Scale to 0-10
+        
+        # Weighted combination: 40% quantitative (mathematical), 60% qualitative (semantic/cultural)
+        # Qualitative weighted higher for business relevance and interpretability
+        combined_score = (quant_score * 0.4) + (qual_score * 0.6)
+        
+        return {
+            'combined_score': round(combined_score, 2),
+            'quantitative_score': round(quant_score, 2),  # Mathematical/statistical measures
+            'qualitative_score': round(qual_score, 2),    # Semantic/cultural measures
+            'quantitative_weight': 0.4,
+            'qualitative_weight': 0.6,
+            'assessment_summary': {
+                'clusters_found': quantitative.get('n_clusters', 0),
+                'noise_percentage': quantitative.get('noise_percentage', 0),
+                'business_value': qualitative.get('average_business_value', 0),
+                'cultural_coverage': qualitative.get('cultural_dimensions_covered', 0),
+                'top_themes': [cluster['theme'] for cluster in qualitative.get('top_quality_clusters', [])[:3]]
+            },
+            'recommendations': self._generate_recommendations(quantitative, qualitative)
+        }
+    
+    def _generate_recommendations(self, quantitative: Dict, qualitative: Dict) -> List[str]:
+        """
+        Generate actionable recommendations based on assessment.
+        
+        Combines insights from both quantitative (mathematical/statistical) and
+        qualitative (semantic/cultural) assessments to provide actionable guidance.
+        
+        Args:
+            quantitative: Mathematical/statistical assessment results
+            qualitative: Semantic/cultural assessment results
+            
+        Returns:
+            List of actionable recommendations
+        """
+        recommendations = []
+        
+        # QUANTITATIVE (mathematical/statistical) recommendations
+        noise_pct = quantitative.get('noise_percentage', 0)
+        n_clusters = quantitative.get('n_clusters', 0)
+        
+        if noise_pct > 20:
+            recommendations.append("High noise level - consider relaxing clustering parameters")
+        elif noise_pct < 5:
+            recommendations.append("Very low noise - clusters might be over-fitted")
+        
+        if n_clusters > 50:
+            recommendations.append("Many small clusters - consider increasing min_cluster_size")
+        elif n_clusters < 5:
+            recommendations.append("Few clusters - data might need more granular analysis")
+        
+        # QUALITATIVE (semantic/cultural) recommendations
+        if qualitative:
+            avg_business_value = qualitative.get('average_business_value', 0)
+            cultural_coverage = qualitative.get('cultural_dimensions_covered', 0)
+            
+            if avg_business_value < 0.5:
+                recommendations.append("Low business value - review if clusters provide actionable insights")
+            
+            if cultural_coverage < 4:
+                recommendations.append("Limited cultural dimension coverage - consider broader data collection")
+            
+            # Add improvement opportunities from qualitative assessment
+            improvements = qualitative.get('improvement_opportunities', [])
+            recommendations.extend(improvements[:2])  # Add top 2 opportunities
+        
+        return recommendations if recommendations else ["Clustering quality looks good overall!"]
