@@ -1,0 +1,100 @@
+{
+  "runs": [
+    {
+      "timestamp": "2025-06-18T22:55:40.201987",
+      "name": "Ultra_Fine",
+      "params": {
+        "name": "Ultra_Fine",
+        "umap_neighbors": 6,
+        "umap_min_dist": 0.001,
+        "hdbscan_min_cluster": 2,
+        "hdbscan_min_samples": 1
+      },
+      "n_clusters": 57,
+      "noise_percentage": 5.5,
+      "silhouette_score": 0.586527407169342,
+      "quality_score": 7.199940037212892,
+      "avg_cluster_size": 3.3157894736842106
+    },
+    {
+      "timestamp": "2025-06-18T22:56:09.982040",
+      "name": "Ultra_Fine",
+      "params": {
+        "name": "Ultra_Fine",
+        "umap_neighbors": 6,
+        "umap_min_dist": 0.001,
+        "hdbscan_min_cluster": 2,
+        "hdbscan_min_samples": 1
+      },
+      "n_clusters": 57,
+      "noise_percentage": 5.5,
+      "silhouette_score": 0.586527407169342,
+      "quality_score": 7.199940037212892,
+      "avg_cluster_size": 3.3157894736842106
+    },
+    {
+      "timestamp": "2025-06-18T23:00:00.000000",
+      "name": "Poor_Conservative",
+      "params": {
+        "name": "Poor_Conservative",
+        "umap_neighbors": 50,
+        "umap_min_dist": 0.5,
+        "hdbscan_min_cluster": 20,
+        "hdbscan_min_samples": 10
+      },
+      "n_clusters": 0,
+      "noise_percentage": 100.0,
+      "silhouette_score": 0,
+      "quality_score": 0.0,
+      "avg_cluster_size": 0
+    },
+    {
+      "timestamp": "2025-06-18T23:00:00.000000",
+      "name": "Poor_Aggressive",
+      "params": {
+        "name": "Poor_Aggressive",
+        "umap_neighbors": 3,
+        "umap_min_dist": 0.9,
+        "hdbscan_min_cluster": 50,
+        "hdbscan_min_samples": 25
+      },
+      "n_clusters": 0,
+      "noise_percentage": 100.0,
+      "silhouette_score": 0,
+      "quality_score": 0.0,
+      "avg_cluster_size": 0
+    },
+    {
+      "timestamp": "2025-06-18T22:58:35.185980",
+      "name": "Ultra_Fine",
+      "params": {
+        "name": "Ultra_Fine",
+        "umap_neighbors": 6,
+        "umap_min_dist": 0.001,
+        "hdbscan_min_cluster": 2,
+        "hdbscan_min_samples": 1
+      },
+      "n_clusters": 57,
+      "noise_percentage": 5.5,
+      "silhouette_score": 0.586527407169342,
+      "quality_score": 7.199940037212892,
+      "avg_cluster_size": 3.3157894736842106
+    }
+  ],
+  "best_ever": {
+    "timestamp": "2025-06-18T22:55:40.201987",
+    "name": "Ultra_Fine",
+    "params": {
+      "name": "Ultra_Fine",
+      "umap_neighbors": 6,
+      "umap_min_dist": 0.001,
+      "hdbscan_min_cluster": 2,
+      "hdbscan_min_samples": 1
+    },
+    "n_clusters": 57,
+    "noise_percentage": 5.5,
+    "silhouette_score": 0.586527407169342,
+    "quality_score": 7.199940037212892,
+    "avg_cluster_size": 3.3157894736842106
+  }
+}

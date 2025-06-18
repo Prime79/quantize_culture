@@ -361,6 +361,50 @@ class DataExtractorAnalyzer:
         from .utils import create_all_plots
         
         create_all_plots(self, save_2d, save_3d, save_comparison, save_summary)
+    
+    def run_optimized_clustering(self, limit: Optional[int] = None) -> Dict:
+        """
+        Run optimized clustering workflow with automatic parameter tuning.
+        
+        This method uses the enhanced clustering optimizer to automatically
+        find the best parameters and benchmark against historical results.
+        
+        Args:
+            limit: Maximum number of points to process
+            
+        Returns:
+            Dictionary with optimization results and quality metrics
+        """
+        try:
+            from .clustering_optimizer import EnhancedDataExtractorAnalyzer
+            
+            # Use enhanced analyzer for optimization
+            enhanced_analyzer = EnhancedDataExtractorAnalyzer(self.collection_name)
+            results = enhanced_analyzer.optimize_and_cluster(limit=limit)
+            
+            # Copy results back to this analyzer
+            self.data = enhanced_analyzer.base_analyzer.data
+            self.embeddings = enhanced_analyzer.base_analyzer.embeddings
+            self.reduced_embeddings = enhanced_analyzer.base_analyzer.reduced_embeddings
+            self.cluster_labels = enhanced_analyzer.base_analyzer.cluster_labels
+            
+            return results
+            
+        except ImportError as e:
+            print(f"⚠️  Enhanced clustering not available: {e}")
+            print("   Falling back to basic clustering...")
+            
+            # Fallback to basic clustering
+            self.extract_data(limit=limit)
+            self.reduce_dimensions()
+            self.cluster_data()
+            self.store_clusters_to_database()
+            
+            return {
+                'fallback': True,
+                'message': 'Used basic clustering due to import error'
+            }
+
 def main():
     """Main function demonstrating the full pipeline."""
     print("=== Company Culture Data Analysis Pipeline ===\n")
