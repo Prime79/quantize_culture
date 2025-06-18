@@ -20,6 +20,8 @@ from qdrant_client.models import Filter, FieldCondition, Range, MatchValue
 import umap
 import hdbscan
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Load environment variables
 load_dotenv()
@@ -295,8 +297,70 @@ class DataExtractorAnalyzer:
             summaries.append(summary)
         
         return pd.DataFrame(summaries)
-
-
+    
+    def plot_clusters(self, 
+                     figsize: Tuple[int, int] = (12, 8),
+                     save_path: Optional[str] = None,
+                     show_labels: bool = True,
+                     alpha: float = 0.7,
+                     title: str = "UMAP Clustering Results") -> None:
+        """
+        Plot the UMAP clustering results.
+        
+        Args:
+            figsize: Figure size tuple
+            save_path: Path to save the plot
+            show_labels: Whether to show cluster labels
+            alpha: Point transparency
+            title: Plot title
+        """
+        from .utils import plot_umap_clusters
+        
+        if self.reduced_embeddings is None or self.cluster_labels is None:
+            raise ValueError("Must run dimensionality reduction and clustering first")
+        
+        plot_umap_clusters(
+            self.data,
+            self.reduced_embeddings,
+            self.cluster_labels,
+            figsize=figsize,
+            save_path=save_path,
+            show_labels=show_labels,
+            alpha=alpha,
+            title=title
+        )
+    
+    def plot_cluster_comparison(self,
+                               figsize: Tuple[int, int] = (16, 6),
+                               save_path: Optional[str] = None) -> None:
+        """
+        Create a comparison plot of 2D vs 3D clustering.
+        
+        Args:
+            figsize: Figure size tuple
+            save_path: Path to save the plot
+        """
+        from .utils import plot_cluster_comparison
+        
+        plot_cluster_comparison(self, figsize=figsize, save_path=save_path)
+    
+    def create_all_plots(self,
+                        save_2d: str = "umap_2d_clusters.png",
+                        save_3d: str = "umap_3d_clusters.png", 
+                        save_comparison: str = "umap_comparison.png",
+                        save_summary: str = "cluster_summary.png") -> None:
+        """
+        Create all visualization plots.
+        
+        Args:
+            save_2d: Path for 2D plot
+            save_3d: Path for 3D plot  
+            save_comparison: Path for comparison plot
+            save_summary: Path for summary chart
+        """
+        from .utils import create_all_plots
+        
+        create_all_plots(self, save_2d, save_3d, save_comparison, save_summary)
 def main():
     """Main function demonstrating the full pipeline."""
     print("=== Company Culture Data Analysis Pipeline ===\n")
