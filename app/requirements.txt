@@ -4,3 +4,6 @@ umap-learn
 hdbscan
 jax
 python-dotenv
+pandas
+scikit-learn
+numpy
