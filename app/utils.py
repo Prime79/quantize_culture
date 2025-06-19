@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 from typing import Optional, Tuple, List
 import seaborn as sns
+import datetime
+import os
 
 # Set style for better looking plots
 plt.style.use('seaborn-v0_8')
@@ -249,6 +251,40 @@ def plot_cluster_summary_chart(cluster_summary: pd.DataFrame,
         print(f"   📁 Summary chart saved to {save_path}")
     
     plt.close()
+
+def qualitative_verbal_evaluation(qualitative):
+    if qualitative >= 0.8:
+        return "Clusters are highly coherent, business-relevant, and easily interpretable. Excellent qualitative quality."
+    elif qualitative >= 0.6:
+        return "Clusters are generally coherent and business-relevant, with good interpretability. Qualitative quality is strong."
+    elif qualitative >= 0.4:
+        return "Clusters show moderate coherence and relevance. Some clusters may need review or merging for better interpretability."
+    else:
+        return "Clusters have low semantic coherence or business relevance. Consider reviewing clustering parameters or input data."
+
+def write_clustering_report_md(collection_name, quantitative, qualitative, combined, cluster_count, noise_pct, silhouette, output_dir="."):
+    """
+    Write a Markdown report summarizing clustering results, including a verbal evaluation.
+    """
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    filename = f"{output_dir}/clustering_report_{collection_name}_{now.replace(' ', '_').replace(':', '-')}.md"
+    with open(filename, "w") as f:
+        f.write(f"# Clustering Report for `{collection_name}`\n")
+        f.write(f"_Generated: {now}_\n\n")
+        f.write("## Quantitative Measures\n")
+        f.write(f"- **Combined Quantitative Score:** `{quantitative:.2f}`\n")
+        f.write(f"- **Silhouette Score:** `{silhouette:.2f}`\n")
+        f.write(f"- **Number of Clusters:** `{cluster_count}`\n")
+        f.write(f"- **Noise Percentage:** `{noise_pct:.1f}%`\n\n")
+        f.write("## Qualitative Measures\n")
+        f.write(f"- **Combined Qualitative Score:** `{qualitative:.2f}`\n")
+        f.write("\n## Overall Combined Score\n")
+        f.write(f"- **Combined Score:** `{combined:.2f}`\n\n")
+        f.write("## Verbal Evaluation\n")
+        f.write(qualitative_verbal_evaluation(qualitative) + "\n")
+    print(f"✅ Markdown report written to: {filename}")
 
 def create_all_plots(analyzer, 
                     save_2d: str = "umap_2d_clusters.png",
