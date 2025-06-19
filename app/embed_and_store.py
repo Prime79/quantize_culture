@@ -75,6 +75,87 @@ def embed_and_store_bulk(sentences, qdrant_client=None, collection_name=None):
     qdrant_client.upsert(collection_name=collection_name, points=points)
     print(f"Stored embeddings for {len(sentences)} sentences in collection '{collection_name}'.")
 
+def ensure_reference_collection(collection_name: str, overwrite: bool = True):
+    """
+    Ensure reference collection exists with proper cleanup.
+    
+    Args:
+        collection_name: Name of the reference collection
+        overwrite: If True, delete existing collection and recreate (default: True)
+    """
+    print(f"🔧 Managing reference collection '{collection_name}'...")
+    
+    collections = client.get_collections().collections
+    collection_exists = any(c.name == collection_name for c in collections)
+    
+    if collection_exists:
+        if overwrite:
+            print(f"   🗑️  Deleting existing collection '{collection_name}'...")
+            client.delete_collection(collection_name)
+            print(f"   ✅ Existing collection deleted")
+        else:
+            print(f"   ⚠️  Collection '{collection_name}' already exists, keeping existing data")
+            return
+    
+    # Create fresh collection
+    print(f"   🆕 Creating fresh collection '{collection_name}'...")
+    client.recreate_collection(
+        collection_name=collection_name,
+        vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
+    )
+    print(f"   ✅ Reference collection '{collection_name}' ready")
+
+def embed_and_store_to_reference_collection(sentences, collection_name: str, overwrite: bool = True):
+    """
+    Embed and store sentences to a specific reference collection with cleanup.
+    
+    Args:
+        sentences: List of sentences to embed and store
+        collection_name: Name of the reference collection
+        overwrite: If True, recreate collection (default: True)
+    """
+    if not sentences:
+        print("❌ No sentences provided for embedding.")
+        return 0
+    
+    print(f"📊 Processing {len(sentences)} sentences for reference collection '{collection_name}'...")
+    
+    # Ensure clean reference collection
+    ensure_reference_collection(collection_name, overwrite=overwrite)
+    
+    # Get embeddings from OpenAI in batch
+    print(f"   🤖 Getting embeddings from OpenAI...")
+    response = openai.embeddings.create(
+        input=sentences,
+        model="text-embedding-ada-002"
+    )
+    embeddings = [item.embedding for item in response.data]
+    
+    # Create points with unique IDs
+    points = [
+        PointStruct(
+            id=str(uuid.uuid4()),
+            vector=embedding,
+            payload={"sentence": sentence}
+        )
+        for sentence, embedding in zip(sentences, embeddings)
+    ]
+    
+    # Store in reference collection
+    print(f"   💾 Storing {len(points)} embeddings...")
+    client.upsert(collection_name=collection_name, points=points)
+    
+    # Verify storage
+    collection_info = client.get_collection(collection_name)
+    actual_count = collection_info.points_count
+    
+    print(f"   ✅ Stored {actual_count} embeddings in reference collection '{collection_name}'")
+    
+    if actual_count != len(sentences):
+        print(f"   ⚠️  Warning: Expected {len(sentences)} but stored {actual_count}")
+    
+    return actual_count
+
 if __name__ == "__main__":
     ensure_collection()
     test_sentence = "Our company values innovation and teamwork."

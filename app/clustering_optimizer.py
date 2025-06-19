@@ -277,7 +277,7 @@ class ClusteringOptimizer:
         # Save results
         self.current_results = results
         self.best_params = best_result['params']
-        self.best_score = best_result['quality_score']
+        self.best_score = best_result['quantitative_score']
         
         # Update benchmarks
         self._update_benchmarks(best_result)
@@ -293,7 +293,7 @@ class ClusteringOptimizer:
             "n_clusters": result['n_clusters'],
             "noise_percentage": result['noise_percentage'],
             "silhouette_score": result['silhouette_score'],
-            "quality_score": result['quality_score'],
+            "quantitative_score": result['quantitative_score'],
             "avg_cluster_size": result['avg_cluster_size']
         }
         
@@ -366,13 +366,13 @@ class ClusteringOptimizer:
         
         # Extract data for plotting
         names = [r['name'] for r in self.current_results]
-        quality_scores = [r['quality_score'] for r in self.current_results]
+        quantitative_scores = [r['quantitative_score'] for r in self.current_results]
         n_clusters = [r['n_clusters'] for r in self.current_results]
         noise_percentages = [r['noise_percentage'] for r in self.current_results]
         silhouette_scores = [r['silhouette_score'] for r in self.current_results]
         
         # Quality scores
-        axes[0, 0].bar(range(len(names)), quality_scores)
+        axes[0, 0].bar(range(len(names)), quantitative_scores)
         axes[0, 0].set_title('Quality Scores by Method')
         axes[0, 0].set_xlabel('Method')
         axes[0, 0].set_ylabel('Quality Score')
@@ -389,9 +389,9 @@ class ClusteringOptimizer:
         axes[0, 1].set_ylabel('Noise Percentage')
         
         # Quality vs Silhouette
-        axes[1, 0].scatter(silhouette_scores, quality_scores, s=100, alpha=0.7)
+        axes[1, 0].scatter(silhouette_scores, quantitative_scores, s=100, alpha=0.7)
         for i, name in enumerate(names):
-            axes[1, 0].annotate(name, (silhouette_scores[i], quality_scores[i]), 
+            axes[1, 0].annotate(name, (silhouette_scores[i], quantitative_scores[i]), 
                                xytext=(5, 5), textcoords='offset points', fontsize=8)
         axes[1, 0].set_title('Quality Score vs Silhouette Score')
         axes[1, 0].set_xlabel('Silhouette Score')
@@ -401,7 +401,7 @@ class ClusteringOptimizer:
         axes[1, 1].set_title('Historical Quality Trend')
         if len(self.benchmarks["runs"]) > 1:
             timestamps = [r["timestamp"] for r in self.benchmarks["runs"][-20:]]  # Last 20 runs
-            historical_scores = [r["quality_score"] for r in self.benchmarks["runs"][-20:]]
+            historical_scores = [r["quantitative_score"] for r in self.benchmarks["runs"][-20:]]
             axes[1, 1].plot(range(len(historical_scores)), historical_scores, 'o-')
             axes[1, 1].set_xlabel('Run Number (Recent)')
             axes[1, 1].set_ylabel('Quality Score')
@@ -503,7 +503,7 @@ class EnhancedDataExtractorAnalyzer:
         
         print(f"\n✅ OPTIMIZATION WORKFLOW COMPLETE!")
         print(f"   Applied Method: {best_result['name']}")
-        print(f"   Quality Score: {best_result['quality_score']:.1f}")
+        print(f"   Quality Score: {best_result['quantitative_score']:.1f}")
         print(f"   Final Clusters: {best_result['n_clusters']}")
         print(f"   Noise Percentage: {best_result['noise_percentage']:.1f}%")
         print(f"   Silhouette Score: {best_result['silhouette_score']:.3f}")
@@ -513,7 +513,7 @@ class EnhancedDataExtractorAnalyzer:
             'applied_params': best_params,
             'cluster_summary': summary,
             'quality_metrics': {
-                'quality_score': best_result['quality_score'],
+                'quantitative_score': best_result['quantitative_score'],
                 'n_clusters': best_result['n_clusters'],
                 'noise_percentage': best_result['noise_percentage'],
                 'silhouette_score': best_result['silhouette_score']
@@ -559,7 +559,7 @@ class EnhancedDataExtractorAnalyzer:
         print("   - Silhouette score optimization")
         print("   - Noise percentage minimization") 
         print("   - UMAP/HDBSCAN parameter tuning")
-        best_quantitative = self.optimize_clustering(embeddings)
+        best_quantitative = self.optimizer.optimize_clustering(embeddings)
         
         assessment_results = {
             'quantitative_results': best_quantitative,

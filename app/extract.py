@@ -85,14 +85,24 @@ class DataExtractorAnalyzer:
                 scroll_filter=query_filter
             )
             
-            if not result[0]:  # No more points
-                break
-                
-            points.extend(result[0])
-            offset = result[1]  # Next offset
+            batch_points, next_offset = result
             
+            # Check if we've reached the end
+            if not batch_points:  # No more points returned
+                break
+            
+            points.extend(batch_points)
+            
+            # Check limit before updating offset
             if limit and len(points) >= limit:
                 points = points[:limit]
+                break
+            
+            # Update offset for next iteration
+            offset = next_offset
+            
+            # Also check if Qdrant indicates no more data
+            if next_offset is None:
                 break
         
         print(f"Extracted {len(points)} points from the database")

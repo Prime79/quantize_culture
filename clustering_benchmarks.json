@@ -1,100 +1,100 @@
 {
   "runs": [
     {
-      "timestamp": "2025-06-18T22:55:40.201987",
-      "name": "Ultra_Fine",
+      "timestamp": "2025-06-19T13:21:17.395811",
+      "name": "Aggressive",
       "params": {
-        "name": "Ultra_Fine",
-        "umap_neighbors": 6,
-        "umap_min_dist": 0.001,
-        "hdbscan_min_cluster": 2,
-        "hdbscan_min_samples": 1
+        "name": "Aggressive",
+        "umap_neighbors": 5,
+        "umap_min_dist": 0.0,
+        "hdbscan_min_cluster": 3,
+        "hdbscan_min_samples": 2
       },
-      "n_clusters": 57,
-      "noise_percentage": 5.5,
-      "silhouette_score": 0.586527407169342,
-      "quality_score": 7.199940037212892,
-      "avg_cluster_size": 3.3157894736842106
+      "n_clusters": 8,
+      "noise_percentage": 1.3333333333333335,
+      "silhouette_score": 0.5830134749412537,
+      "quantitative_score": 6.340186296146651,
+      "avg_cluster_size": 9.25
     },
     {
-      "timestamp": "2025-06-18T22:56:09.982040",
-      "name": "Ultra_Fine",
+      "timestamp": "2025-06-19T13:29:50.231373",
+      "name": "Aggressive",
       "params": {
-        "name": "Ultra_Fine",
-        "umap_neighbors": 6,
-        "umap_min_dist": 0.001,
-        "hdbscan_min_cluster": 2,
-        "hdbscan_min_samples": 1
+        "name": "Aggressive",
+        "umap_neighbors": 5,
+        "umap_min_dist": 0.0,
+        "hdbscan_min_cluster": 3,
+        "hdbscan_min_samples": 2
       },
-      "n_clusters": 57,
-      "noise_percentage": 5.5,
-      "silhouette_score": 0.586527407169342,
-      "quality_score": 7.199940037212892,
-      "avg_cluster_size": 3.3157894736842106
+      "n_clusters": 104,
+      "noise_percentage": 9.833333333333332,
+      "silhouette_score": 0.6464242339134216,
+      "quantitative_score": 8.156079896249112,
+      "avg_cluster_size": 5.201923076923077
     },
     {
-      "timestamp": "2025-06-18T23:00:00.000000",
-      "name": "Poor_Conservative",
+      "timestamp": "2025-06-19T13:40:32.607297",
+      "name": "Aggressive",
       "params": {
-        "name": "Poor_Conservative",
-        "umap_neighbors": 50,
-        "umap_min_dist": 0.5,
-        "hdbscan_min_cluster": 20,
-        "hdbscan_min_samples": 10
+        "name": "Aggressive",
+        "umap_neighbors": 5,
+        "umap_min_dist": 0.0,
+        "hdbscan_min_cluster": 3,
+        "hdbscan_min_samples": 2
       },
-      "n_clusters": 0,
-      "noise_percentage": 100.0,
-      "silhouette_score": 0,
-      "quality_score": 0.0,
-      "avg_cluster_size": 0
+      "n_clusters": 104,
+      "noise_percentage": 9.833333333333332,
+      "silhouette_score": 0.6464242339134216,
+      "quantitative_score": 8.156079896249112,
+      "avg_cluster_size": 5.201923076923077
     },
     {
-      "timestamp": "2025-06-18T23:00:00.000000",
-      "name": "Poor_Aggressive",
+      "timestamp": "2025-06-19T13:46:32.675131",
+      "name": "Aggressive",
       "params": {
-        "name": "Poor_Aggressive",
-        "umap_neighbors": 3,
-        "umap_min_dist": 0.9,
-        "hdbscan_min_cluster": 50,
-        "hdbscan_min_samples": 25
+        "name": "Aggressive",
+        "umap_neighbors": 5,
+        "umap_min_dist": 0.0,
+        "hdbscan_min_cluster": 3,
+        "hdbscan_min_samples": 2
       },
-      "n_clusters": 0,
-      "noise_percentage": 100.0,
-      "silhouette_score": 0,
-      "quality_score": 0.0,
-      "avg_cluster_size": 0
+      "n_clusters": 104,
+      "noise_percentage": 9.833333333333332,
+      "silhouette_score": 0.6464242339134216,
+      "quantitative_score": 8.156079896249112,
+      "avg_cluster_size": 5.201923076923077
     },
     {
-      "timestamp": "2025-06-18T22:58:35.185980",
-      "name": "Ultra_Fine",
+      "timestamp": "2025-06-19T13:55:10.756793",
+      "name": "Aggressive",
       "params": {
-        "name": "Ultra_Fine",
-        "umap_neighbors": 6,
-        "umap_min_dist": 0.001,
-        "hdbscan_min_cluster": 2,
-        "hdbscan_min_samples": 1
+        "name": "Aggressive",
+        "umap_neighbors": 5,
+        "umap_min_dist": 0.0,
+        "hdbscan_min_cluster": 3,
+        "hdbscan_min_samples": 2
       },
-      "n_clusters": 57,
-      "noise_percentage": 5.5,
-      "silhouette_score": 0.586527407169342,
-      "quality_score": 7.199940037212892,
-      "avg_cluster_size": 3.3157894736842106
+      "n_clusters": 104,
+      "noise_percentage": 9.833333333333332,
+      "silhouette_score": 0.6464242339134216,
+      "quantitative_score": 8.156079896249112,
+      "avg_cluster_size": 5.201923076923077
     }
   ],
   "best_ever": {
-    "timestamp": "2025-06-18T22:55:40.201987",
-    "name": "Ultra_Fine",
+    "timestamp": "2025-06-19T13:29:50.231373",
+    "name": "Aggressive",
     "params": {
-      "name": "Ultra_Fine",
-      "umap_neighbors": 6,
-      "umap_min_dist": 0.001,
-      "hdbscan_min_cluster": 2,
-      "hdbscan_min_samples": 1
+      "name": "Aggressive",
+      "umap_neighbors": 5,
+      "umap_min_dist": 0.0,
+      "hdbscan_min_cluster": 3,
+      "hdbscan_min_samples": 2
     },
-    "n_clusters": 57,
-    "noise_percentage": 5.5,
-    "silhouette_score": 0.586527407169342,
-    "quality_score": 7.199940037212892,
-    "avg_cluster_size": 3.3157894736842106
+    "n_clusters": 104,
+    "noise_percentage": 9.833333333333332,
+    "silhouette_score": 0.6464242339134216,
+    "quantitative_score": 8.156079896249112,
+    "avg_cluster_size": 5.201923076923077
   }
 }
