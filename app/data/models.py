@@ -6,7 +6,7 @@ import json
 
 @dataclass
 class Sentence:
-    """Represents a single sentence with metadata."""
+    """Represents a single sentence with metadata and DL labels."""
     id: str
     text: str
     archetype: str
@@ -14,6 +14,30 @@ class Sentence:
     contextualized_text: Optional[str] = None
     embedding: Optional[List[float]] = None
     cluster_id: Optional[int] = None
+    
+    # Enhanced DL metadata fields
+    dl_category: Optional[str] = None
+    dl_subcategory: Optional[str] = None
+    dl_archetype: Optional[str] = None
+    actual_phrase: Optional[str] = None
+    
+    def __post_init__(self):
+        """Post-initialization processing."""
+        # Set actual_phrase from text if not provided
+        if self.actual_phrase is None:
+            self.actual_phrase = self.text
+            
+        # Auto-generate dl_archetype if category and subcategory are provided
+        if self.dl_archetype is None and self.dl_category and self.dl_subcategory:
+            self.dl_archetype = f"{self.dl_category} - {self.dl_subcategory}"
+    
+    def has_complete_dl_metadata(self) -> bool:
+        """Check if sentence has complete DL metadata."""
+        return all([
+            self.dl_category is not None and self.dl_category != "",
+            self.dl_subcategory is not None and self.dl_subcategory != "",
+            self.dl_archetype is not None and self.dl_archetype != ""
+        ])
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
@@ -24,7 +48,11 @@ class Sentence:
             'dimensions': self.dimensions,
             'contextualized_text': self.contextualized_text,
             'embedding': self.embedding,
-            'cluster_id': self.cluster_id
+            'cluster_id': self.cluster_id,
+            'dl_category': self.dl_category,
+            'dl_subcategory': self.dl_subcategory,
+            'dl_archetype': self.dl_archetype,
+            'actual_phrase': self.actual_phrase
         }
     
     @classmethod
@@ -133,3 +161,110 @@ class AssessmentResult:
             'actionable_insights': self.actionable_insights,
             'recommendations': self.recommendations
         }
+
+@dataclass
+class DLSentence:
+    """
+    Specialized sentence model for Digital Leadership with required DL metadata.
+    """
+    text: str
+    dl_category: str
+    dl_subcategory: str
+    dl_archetype: Optional[str] = None
+    id: Optional[str] = None
+    contextualized_text: Optional[str] = None
+    embedding: Optional[List[float]] = None
+    
+    def __post_init__(self):
+        """Post-initialization processing."""
+        if self.dl_archetype is None:
+            self.dl_archetype = f"{self.dl_category} - {self.dl_subcategory}"
+        
+        if self.id is None:
+            import uuid
+            self.id = str(uuid.uuid4())
+    
+    def to_sentence(self) -> Sentence:
+        """Convert to standard Sentence object."""
+        return Sentence(
+            id=self.id,
+            text=self.text,
+            archetype=self.dl_archetype,
+            dimensions=[],
+            dl_category=self.dl_category,
+            dl_subcategory=self.dl_subcategory,
+            dl_archetype=self.dl_archetype,
+            contextualized_text=self.contextualized_text,
+            embedding=self.embedding,
+            actual_phrase=self.text
+        )
+
+@dataclass
+class DLDataStructure:
+    """
+    Represents the hierarchical structure of DL data.
+    """
+    categories: Dict[str, Dict[str, List[str]]] = None
+    total_sentences: int = 0
+    total_categories: int = 0
+    total_subcategories: int = 0
+    
+    def __post_init__(self):
+        """Calculate totals after initialization."""
+        if self.categories is None:
+            self.categories = {}
+        
+        self.total_categories = len(self.categories)
+        self.total_subcategories = sum(len(subcats) for subcats in self.categories.values())
+        self.total_sentences = sum(
+            len(sentences) 
+            for subcats in self.categories.values() 
+            for sentences in subcats.values()
+        )
+    
+    def get_all_sentences_with_metadata(self) -> List[DLSentence]:
+        """Extract all sentences with their DL metadata."""
+        sentences = []
+        for category, subcategories in self.categories.items():
+            for subcategory, sentence_texts in subcategories.items():
+                for text in sentence_texts:
+                    sentence = DLSentence(
+                        text=text,
+                        dl_category=category,
+                        dl_subcategory=subcategory
+                    )
+                    sentences.append(sentence)
+        return sentences
+
+@dataclass
+class DLValidationResult:
+    """
+    Results of DL metadata validation.
+    """
+    categories_complete: bool = True
+    subcategories_complete: bool = True
+    archetypes_complete: bool = True
+    missing_metadata_count: int = 0
+    validation_errors: List[str] = None
+    total_sentences: int = 0
+    valid_sentences: int = 0
+    
+    def __post_init__(self):
+        """Initialize validation errors list."""
+        if self.validation_errors is None:
+            self.validation_errors = []
+    
+    @property
+    def is_valid(self) -> bool:
+        """Check if validation passed."""
+        return (self.categories_complete and 
+                self.subcategories_complete and 
+                self.archetypes_complete and 
+                self.missing_metadata_count == 0)
+    
+    @property
+    def completion_rate(self) -> float:
+        """Calculate completion rate."""
+        if self.total_sentences == 0:
+            return 0.0
+        return self.valid_sentences / self.total_sentences

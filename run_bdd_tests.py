@@ -33,6 +33,16 @@ def run_tests():
             'name': 'User Requirements Tests (Level 1)',
             'command': ['python', '-m', 'pytest', 'tests/step_defs/test_user_requirements_steps.py', '-v', '--tb=short'],
             'marker': 'user'
+        },
+        {
+            'name': 'Enhanced Inference Tests (Advanced)',
+            'command': ['python', '-m', 'pytest', 'tests/step_defs/test_enhanced_inference_steps.py', '-v', '--tb=short'],
+            'marker': 'enhanced'
+        },
+        {
+            'name': 'Inference CLI Tests (Integration)',
+            'command': ['python', '-m', 'pytest', 'tests/step_defs/test_inference_cli_bdd.py', '-v', '--tb=short'],
+            'marker': 'cli'
         }
     ]
     
@@ -90,15 +100,23 @@ def run_specific_level(level: str):
     level_mapping = {
         '1': 'tests/step_defs/test_user_requirements_steps.py',
         '2': 'tests/step_defs/test_functional_steps.py', 
-        '3': 'tests/step_defs/test_simple_unit.py'
+        '3': 'tests/step_defs/test_simple_unit.py',
+        'enhanced': 'tests/step_defs/test_enhanced_inference_steps.py',
+        'cli': 'tests/step_defs/test_inference_cli_bdd.py'
     }
     
     if level not in level_mapping:
-        print(f"❌ Invalid level: {level}. Use 1, 2, or 3.")
+        print(f"❌ Invalid level: {level}. Use 1, 2, 3, 'enhanced', or 'cli'.")
         return 1
         
     test_file = level_mapping[level]
-    level_names = {'1': 'User Requirements', '2': 'Functional', '3': 'Unit Tests'}
+    level_names = {
+        '1': 'User Requirements', 
+        '2': 'Functional', 
+        '3': 'Unit Tests',
+        'enhanced': 'Enhanced Inference',
+        'cli': 'Inference CLI'
+    }
     
     print(f"🧪 Running Level {level}: {level_names[level]} Tests")
     print("=" * 50)

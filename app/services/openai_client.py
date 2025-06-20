@@ -1,6 +1,6 @@
 """OpenAI service wrapper for embedding generation."""
 
-import openai
+from openai import OpenAI
 from typing import List, Optional
 from ..utils.config import config
 from ..data.models import Sentence
@@ -11,7 +11,7 @@ class OpenAIService:
     def __init__(self, api_key: Optional[str] = None):
         """Initialize OpenAI service."""
         self.api_key = api_key or config.openai_api_key
-        openai.api_key = self.api_key
+        self.client = OpenAI(api_key=self.api_key)
         self.embedding_model = config.embedding_model
     
     def get_embedding(self, text: str) -> List[float]:
@@ -25,11 +25,11 @@ class OpenAIService:
             List of embedding values
         """
         try:
-            response = openai.Embedding.create(
+            response = self.client.embeddings.create(
                 input=text,
                 model=self.embedding_model
             )
-            return response['data'][0]['embedding']
+            return response.data[0].embedding
         except Exception as e:
             raise Exception(f"Failed to generate embedding: {str(e)}")
     
@@ -44,11 +44,11 @@ class OpenAIService:
             List of embedding lists
         """
         try:
-            response = openai.Embedding.create(
+            response = self.client.embeddings.create(
                 input=texts,
                 model=self.embedding_model
             )
-            return [item['embedding'] for item in response['data']]
+            return [item.embedding for item in response.data]
         except Exception as e:
             raise Exception(f"Failed to generate embeddings: {str(e)}")
     
