@@ -1,0 +1,181 @@
+{
+  "archetypes": {
+    "Digital Innovator": {
+      "description": "Leaders who drive technological innovation and digital transformation",
+      "characteristics": ["tech-savvy", "forward-thinking", "risk-taking", "experimental"]
+    },
+    "Cultural Catalyst": {
+      "description": "Leaders who shape organizational culture and drive change",
+      "characteristics": ["collaborative", "inspiring", "change-oriented", "people-focused"]
+    },
+    "Strategic Visionary": {
+      "description": "Leaders who develop long-term digital strategies and vision",
+      "characteristics": ["strategic", "analytical", "future-oriented", "systematic"]
+    },
+    "Operational Excellence": {
+      "description": "Leaders focused on efficiency and process optimization",
+      "characteristics": ["efficient", "process-oriented", "quality-focused", "systematic"]
+    }
+  },
+  "digital_leadership_dimensions": [
+    "Innovation Mindset",
+    "Digital Fluency",
+    "Collaboration",
+    "Agility",
+    "Data-Driven Decision Making",
+    "Customer Centricity",
+    "Continuous Learning"
+  ],
+  "example_sentences": [
+    {
+      "id": 1,
+      "text": "We embrace cutting-edge technologies to stay ahead of the competition",
+      "archetype": "Digital Innovator",
+      "dimensions": ["Innovation Mindset", "Digital Fluency"]
+    },
+    {
+      "id": 2,
+      "text": "Our team collaborates seamlessly across digital platforms",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Collaboration", "Digital Fluency"]
+    },
+    {
+      "id": 3,
+      "text": "Data drives every strategic decision we make",
+      "archetype": "Strategic Visionary",
+      "dimensions": ["Data-Driven Decision Making", "Digital Fluency"]
+    },
+    {
+      "id": 4,
+      "text": "We continuously optimize our processes for maximum efficiency",
+      "archetype": "Operational Excellence",
+      "dimensions": ["Continuous Learning", "Agility"]
+    },
+    {
+      "id": 5,
+      "text": "Innovation is at the heart of everything we do",
+      "archetype": "Digital Innovator",
+      "dimensions": ["Innovation Mindset"]
+    },
+    {
+      "id": 6,
+      "text": "We foster a culture of experimentation and learning from failure",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Innovation Mindset", "Continuous Learning"]
+    },
+    {
+      "id": 7,
+      "text": "Our long-term vision guides our digital transformation journey",
+      "archetype": "Strategic Visionary",
+      "dimensions": ["Digital Fluency", "Innovation Mindset"]
+    },
+    {
+      "id": 8,
+      "text": "Customer feedback shapes our product development process",
+      "archetype": "Digital Innovator",
+      "dimensions": ["Customer Centricity", "Data-Driven Decision Making"]
+    },
+    {
+      "id": 9,
+      "text": "We adapt quickly to changing market conditions",
+      "archetype": "Strategic Visionary",
+      "dimensions": ["Agility", "Data-Driven Decision Making"]
+    },
+    {
+      "id": 10,
+      "text": "Cross-functional teams drive our digital initiatives",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Collaboration", "Digital Fluency"]
+    },
+    {
+      "id": 11,
+      "text": "We measure success through key performance indicators",
+      "archetype": "Operational Excellence",
+      "dimensions": ["Data-Driven Decision Making"]
+    },
+    {
+      "id": 12,
+      "text": "Continuous improvement is embedded in our DNA",
+      "archetype": "Operational Excellence",
+      "dimensions": ["Continuous Learning", "Agility"]
+    },
+    {
+      "id": 13,
+      "text": "We invest heavily in employee digital skills development",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Continuous Learning", "Digital Fluency"]
+    },
+    {
+      "id": 14,
+      "text": "Our agile methodology enables rapid product iterations",
+      "archetype": "Digital Innovator",
+      "dimensions": ["Agility", "Innovation Mindset"]
+    },
+    {
+      "id": 15,
+      "text": "We leverage artificial intelligence to enhance decision-making",
+      "archetype": "Strategic Visionary",
+      "dimensions": ["Digital Fluency", "Data-Driven Decision Making"]
+    },
+    {
+      "id": 16,
+      "text": "Customer experience is our top priority in digital design",
+      "archetype": "Digital Innovator",
+      "dimensions": ["Customer Centricity", "Digital Fluency"]
+    },
+    {
+      "id": 17,
+      "text": "We create psychological safety for innovation and risk-taking",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Innovation Mindset", "Collaboration"]
+    },
+    {
+      "id": 18,
+      "text": "Our strategic roadmap aligns with emerging technology trends",
+      "archetype": "Strategic Visionary",
+      "dimensions": ["Digital Fluency", "Innovation Mindset"]
+    },
+    {
+      "id": 19,
+      "text": "We standardize processes to ensure consistent quality",
+      "archetype": "Operational Excellence",
+      "dimensions": ["Digital Fluency"]
+    },
+    {
+      "id": 20,
+      "text": "Real-time analytics inform our operational decisions",
+      "archetype": "Operational Excellence",
+      "dimensions": ["Data-Driven Decision Making", "Digital Fluency"]
+    },
+    {
+      "id": 21,
+      "text": "We experiment with emerging technologies like blockchain and IoT",
+      "archetype": "Digital Innovator",
+      "dimensions": ["Innovation Mindset", "Digital Fluency"]
+    },
+    {
+      "id": 22,
+      "text": "Our diverse teams bring varied perspectives to problem-solving",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Collaboration", "Innovation Mindset"]
+    },
+    {
+      "id": 23,
+      "text": "We anticipate future market needs through predictive analytics",
+      "archetype": "Strategic Visionary",
+      "dimensions": ["Data-Driven Decision Making", "Digital Fluency"]
+    },
+    {
+      "id": 24,
+      "text": "Automation drives efficiency across all our operations",
+      "archetype": "Operational Excellence",
+      "dimensions": ["Digital Fluency", "Agility"]
+    },
+    {
+      "id": 25,
+      "text": "We cultivate a growth mindset throughout the organization",
+      "archetype": "Cultural Catalyst",
+      "dimensions": ["Continuous Learning", "Innovation Mindset"]
+    }
+  ]
+}
