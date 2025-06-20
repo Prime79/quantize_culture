@@ -82,6 +82,11 @@ class ClusteringOptimizer:
         """
         # Normalize components
         cluster_score = min(n_clusters / 10, 10)  # Favor moderate number of clusters
+        
+        # Apply penalty for too many clusters (> 50)
+        if n_clusters > 50:
+            cluster_score = cluster_score * 0.5  # Heavy penalty for excessive clusters
+        
         noise_score = max(0, (100 - noise_percentage) / 10)  # Penalize high noise
         silhouette_score_norm = max(0, silhouette * 10)  # Amplify silhouette
         
@@ -101,42 +106,43 @@ class ClusteringOptimizer:
         return quantitative_score
     
     def _get_parameter_grid(self) -> List[Dict]:
-        """Define parameter grid for optimization."""
+        """Define parameter grid for optimization with max 50 clusters constraint."""
         return [
             # Previous best (baseline)
             {"name": "Baseline", "umap_neighbors": 15, "umap_min_dist": 0.1, 
              "hdbscan_min_cluster": 5, "hdbscan_min_samples": 3},
             
-            # High-resolution clustering
-            {"name": "High_Resolution", "umap_neighbors": 8, "umap_min_dist": 0.01, 
-             "hdbscan_min_cluster": 2, "hdbscan_min_samples": 1},
+            # Moderate resolution clustering (less aggressive than before)
+            {"name": "Moderate_Resolution", "umap_neighbors": 10, "umap_min_dist": 0.05, 
+             "hdbscan_min_cluster": 4, "hdbscan_min_samples": 2},
             
-            # Aggressive clustering
-            {"name": "Aggressive", "umap_neighbors": 5, "umap_min_dist": 0.0, 
-             "hdbscan_min_cluster": 3, "hdbscan_min_samples": 2},
+            # Balanced clustering (increased min_cluster_size)
+            {"name": "Balanced", "umap_neighbors": 12, "umap_min_dist": 0.08, 
+             "hdbscan_min_cluster": 6, "hdbscan_min_samples": 3},
             
             # Conservative clustering
             {"name": "Conservative", "umap_neighbors": 20, "umap_min_dist": 0.2, 
              "hdbscan_min_cluster": 8, "hdbscan_min_samples": 4},
             
-            # Balanced approaches
-            {"name": "Balanced_Tight", "umap_neighbors": 12, "umap_min_dist": 0.05, 
-             "hdbscan_min_cluster": 4, "hdbscan_min_samples": 2},
+            # Tight clustering with larger min cluster size
+            {"name": "Tight_Controlled", "umap_neighbors": 12, "umap_min_dist": 0.05, 
+             "hdbscan_min_cluster": 8, "hdbscan_min_samples": 4},
             
-            {"name": "Balanced_Loose", "umap_neighbors": 25, "umap_min_dist": 0.1, 
+            # Loose clustering
+            {"name": "Loose", "umap_neighbors": 25, "umap_min_dist": 0.15, 
+             "hdbscan_min_cluster": 10, "hdbscan_min_samples": 5},
+            
+            # Large neighborhood approaches with bigger clusters
+            {"name": "Large_Neighborhood", "umap_neighbors": 30, "umap_min_dist": 0.1, 
+             "hdbscan_min_cluster": 8, "hdbscan_min_samples": 4},
+            
+            # Fine clustering but with larger minimum cluster size
+            {"name": "Fine_Controlled", "umap_neighbors": 8, "umap_min_dist": 0.02, 
              "hdbscan_min_cluster": 6, "hdbscan_min_samples": 3},
-            
-            # Large neighborhood approaches
-            {"name": "Large_Neighborhood", "umap_neighbors": 30, "umap_min_dist": 0.05, 
-             "hdbscan_min_cluster": 3, "hdbscan_min_samples": 2},
-            
-            # Ultra-fine clustering
-            {"name": "Ultra_Fine", "umap_neighbors": 6, "umap_min_dist": 0.001, 
-             "hdbscan_min_cluster": 2, "hdbscan_min_samples": 1},
              
             # Moderate clustering
-            {"name": "Moderate", "umap_neighbors": 15, "umap_min_dist": 0.05, 
-             "hdbscan_min_cluster": 5, "hdbscan_min_samples": 2},
+            {"name": "Moderate", "umap_neighbors": 15, "umap_min_dist": 0.08, 
+             "hdbscan_min_cluster": 7, "hdbscan_min_samples": 3},
         ]
     
     def _test_single_parameter_set(self, 
@@ -212,6 +218,11 @@ class ClusteringOptimizer:
             quantitative_score = self._calculate_quantitative_score(
                 n_clusters, noise_percentage, silhouette, calinski_harabasz, davies_bouldin
             )
+            
+            # Apply hard limit: reject results with more than 50 clusters
+            if n_clusters > 50:
+                print(f"⚠️  Rejecting result with {n_clusters} clusters (exceeds limit of 50)")
+                quantitative_score = quantitative_score * 0.1  # Severe penalty
             
             result = {
                 'name': params['name'],
