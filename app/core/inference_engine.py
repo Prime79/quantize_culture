@@ -1,7 +1,7 @@
 """Enhanced Digital Leadership Inference Engine with sophisticated confidence assessment."""
 
 import numpy as np
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 from datetime import datetime
 import re
 from sklearn.metrics.pairwise import cosine_similarity
@@ -162,6 +162,82 @@ class EnhancedInferenceEngine:
             
         except Exception as e:
             raise Exception(f"Inference failed: {str(e)}")
+    
+    def get_nearest_neighbors(self, sentence: str, collection_name: str, 
+                            n_neighbors: int = 5, 
+                            similarity_threshold: Optional[float] = None,
+                            include_dominant_logic: bool = True) -> Dict[str, Any]:
+        """
+        Find the n nearest neighbor sentences to the input sentence with DL metadata analysis.
+        
+        Args:
+            sentence: Input sentence to find neighbors for
+            collection_name: Qdrant collection to search in
+            n_neighbors: Number of nearest neighbors to return (default: 5)
+            similarity_threshold: Minimum similarity threshold (optional)
+            include_dominant_logic: Whether to include dominant logic analysis
+            
+        Returns:
+            Dictionary containing neighbors, similarity scores, DL metadata, and analysis
+        """
+        try:
+            # Validate input
+            self._validate_input_sentence(sentence)
+            self._validate_neighbors_parameters(n_neighbors, similarity_threshold)
+            
+            # Check if collection exists
+            if not self.qdrant_service.collection_exists(collection_name):
+                raise ValueError(f"Collection '{collection_name}' not found")
+            
+            # Contextualize and embed the input sentence
+            context_phrase = "Domain Logic example phrase:"  # Default context
+            contextualized_sentence = f"{context_phrase} {sentence}"
+            embedding = self.openai_service.get_embedding(contextualized_sentence)
+            
+            # Search for similar points in the vector database
+            search_results = self.qdrant_service.search_similar(
+                query_vector=embedding,
+                collection_name=collection_name,
+                limit=n_neighbors * 2  # Get more to apply threshold filtering
+            )
+            
+            # Extract and process neighbor data
+            neighbors = self._process_search_results(
+                search_results, n_neighbors, similarity_threshold
+            )
+            
+            # Extract DL metadata from neighbors
+            neighbors_with_metadata = self._extract_neighbor_dl_metadata(neighbors)
+            
+            # Analyze dominant logic if requested
+            dominant_logic_analysis = None
+            distribution_stats = None
+            
+            if include_dominant_logic and neighbors_with_metadata:
+                dominant_logic_analysis = self._analyze_neighbor_dominant_logic(neighbors_with_metadata)
+                distribution_stats = self._calculate_neighbor_distribution_stats(neighbors_with_metadata)
+            
+            # Format result
+            result = {
+                'query_sentence': sentence,
+                'contextualized_sentence': contextualized_sentence,
+                'collection_name': collection_name,
+                'neighbors': neighbors_with_metadata,
+                'total_neighbors': len(neighbors_with_metadata),
+                'similarity_threshold': similarity_threshold,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+            if dominant_logic_analysis:
+                result['dominant_logic'] = dominant_logic_analysis
+                
+            if distribution_stats:
+                result['distribution_stats'] = distribution_stats
+            
+            return result
+            
+        except Exception as e:
+            raise Exception(f"Nearest neighbors search failed: {str(e)}")
     
     def _calculate_cluster_statistics(self, sentences: List) -> ClusterStatistics:
         """Calculate comprehensive cluster statistics for adaptive thresholds."""
@@ -632,3 +708,145 @@ class EnhancedInferenceEngine:
             recommendations.append("Consider reviewing top alternatives for context-specific fit")
         
         return warnings, recommendations
+    
+    def _validate_neighbors_parameters(self, n_neighbors: int, similarity_threshold: Optional[float]) -> None:
+        """Validate nearest neighbors parameters."""
+        if n_neighbors <= 0:
+            raise ValueError("Number of neighbors must be positive")
+        
+        if n_neighbors > 100:
+            raise ValueError("Number of neighbors cannot exceed 100")
+        
+        if similarity_threshold is not None:
+            if not 0 <= similarity_threshold <= 1:
+                raise ValueError("Similarity threshold must be between 0 and 1")
+    
+    def _process_search_results(self, search_results: List, n_neighbors: int, 
+                              similarity_threshold: Optional[float]) -> List[Dict[str, Any]]:
+        """Process Qdrant search results into neighbor format."""
+        neighbors = []
+        
+        for i, result in enumerate(search_results):
+            # Calculate similarity score (Qdrant returns distance, convert to similarity)
+            similarity_score = 1 - result.score if hasattr(result, 'score') else 0.0
+            
+            # Apply similarity threshold if specified
+            if similarity_threshold is not None and similarity_score < similarity_threshold:
+                continue
+                
+            # Stop if we have enough neighbors
+            if len(neighbors) >= n_neighbors:
+                break
+            
+            neighbor = {
+                'rank': len(neighbors) + 1,
+                'sentence': result.payload.get('sentence', '').replace('Domain Logic example phrase: ', ''),
+                'similarity_score': similarity_score,
+                'point_id': str(result.id),
+                'payload': result.payload
+            }
+            
+            neighbors.append(neighbor)
+        
+        return neighbors
+    
+    def _extract_neighbor_dl_metadata(self, neighbors: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Extract DL metadata from neighbor payloads."""
+        neighbors_with_metadata = []
+        
+        for neighbor in neighbors:
+            payload = neighbor.get('payload', {})
+            
+            # Extract DL metadata fields
+            dl_metadata = {
+                'dl_category': payload.get('dl_category'),
+                'dl_subcategory': payload.get('dl_subcategory'), 
+                'dl_archetype': payload.get('dl_archetype')
+            }
+            
+            # Create enhanced neighbor object
+            enhanced_neighbor = {
+                'rank': neighbor['rank'],
+                'sentence': neighbor['sentence'],
+                'similarity_score': neighbor['similarity_score'],
+                'point_id': neighbor['point_id'],
+                **dl_metadata
+            }
+            
+            neighbors_with_metadata.append(enhanced_neighbor)
+        
+        return neighbors_with_metadata
+    
+    def _analyze_neighbor_dominant_logic(self, neighbors: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze dominant logic patterns across neighbors."""
+        from collections import Counter
+        
+        # Extract DL elements (excluding None values)
+        categories = [n['dl_category'] for n in neighbors if n['dl_category']]
+        subcategories = [n['dl_subcategory'] for n in neighbors if n['dl_subcategory']]
+        archetypes = [n['dl_archetype'] for n in neighbors if n['dl_archetype']]
+        
+        # Calculate most common elements
+        category_counter = Counter(categories)
+        subcategory_counter = Counter(subcategories)
+        archetype_counter = Counter(archetypes)
+        
+        # Calculate confidence scores (percentage of neighbors with dominant element)
+        total_neighbors = len(neighbors)
+        
+        dominant_logic = {}
+        
+        if category_counter.most_common(1):
+            dominant_category, count = category_counter.most_common(1)[0]
+            dominant_logic['dominant_category'] = dominant_category
+            dominant_logic['category_confidence'] = count / total_neighbors
+        else:
+            dominant_logic['dominant_category'] = None
+            dominant_logic['category_confidence'] = 0.0
+        
+        if subcategory_counter.most_common(1):
+            dominant_subcategory, count = subcategory_counter.most_common(1)[0]
+            dominant_logic['dominant_subcategory'] = dominant_subcategory
+            dominant_logic['subcategory_confidence'] = count / total_neighbors
+        else:
+            dominant_logic['dominant_subcategory'] = None
+            dominant_logic['subcategory_confidence'] = 0.0
+        
+        if archetype_counter.most_common(1):
+            dominant_archetype, count = archetype_counter.most_common(1)[0]
+            dominant_logic['dominant_archetype'] = dominant_archetype
+            dominant_logic['archetype_confidence'] = count / total_neighbors
+        else:
+            dominant_logic['dominant_archetype'] = None
+            dominant_logic['archetype_confidence'] = 0.0
+        
+        return dominant_logic
+    
+    def _calculate_neighbor_distribution_stats(self, neighbors: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Calculate distribution statistics for neighbor DL metadata."""
+        from collections import Counter
+        
+        # Extract DL elements
+        categories = [n['dl_category'] for n in neighbors if n['dl_category']]
+        subcategories = [n['dl_subcategory'] for n in neighbors if n['dl_subcategory']]
+        archetypes = [n['dl_archetype'] for n in neighbors if n['dl_archetype']]
+        
+        # Calculate distributions
+        stats = {
+            'category_distribution': dict(Counter(categories)),
+            'subcategory_distribution': dict(Counter(subcategories)),
+            'archetype_distribution': dict(Counter(archetypes)),
+            'total_neighbors': len(neighbors),
+            'neighbors_with_category': len(categories),
+            'neighbors_with_subcategory': len(subcategories),
+            'neighbors_with_archetype': len(archetypes),
+            'unique_categories': len(set(categories)),
+            'unique_subcategories': len(set(subcategories)),
+            'unique_archetypes': len(set(archetypes)),
+            'metadata_completeness': {
+                'category_coverage': len(categories) / len(neighbors) if neighbors else 0,
+                'subcategory_coverage': len(subcategories) / len(neighbors) if neighbors else 0,
+                'archetype_coverage': len(archetypes) / len(neighbors) if neighbors else 0
+            }
+        }
+        return stats

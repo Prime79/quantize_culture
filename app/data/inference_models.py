@@ -124,6 +124,32 @@ class InferenceMatch:
         }
 
 @dataclass
+class EnhancedReferenceMetadata:
+    """Enhanced reference database metadata with statistics and thresholds"""
+    context_phrase: str
+    model_name: str
+    cluster_centroids: Dict[int, Dict]
+    cluster_statistics: ClusterStatistics  
+    adaptive_thresholds: AdaptiveThresholds
+    training_sentences: List[str]  # For leakage detection
+    domain_keywords: Dict[int, List[str]]  # Cluster-specific keywords
+    creation_timestamp: str
+    version: str
+    
+    def to_dict(self) -> Dict:
+        return {
+            'context_phrase': self.context_phrase,
+            'model_name': self.model_name,
+            'cluster_centroids': self.cluster_centroids,
+            'cluster_statistics': self.cluster_statistics.to_dict(),
+            'adaptive_thresholds': self.adaptive_thresholds.to_dict(),
+            'training_sentences': self.training_sentences,
+            'domain_keywords': self.domain_keywords,
+            'creation_timestamp': self.creation_timestamp,
+            'version': self.version
+        }
+
+@dataclass
 class EnhancedInferenceResult:
     """Comprehensive inference result with all analysis"""
     input_sentence: str
@@ -153,28 +179,124 @@ class EnhancedInferenceResult:
             'processing_timestamp': self.processing_timestamp
         }
 
+# Nearest Neighbors Data Models
 @dataclass
-class EnhancedReferenceMetadata:
-    """Enhanced reference database metadata with statistics and thresholds"""
-    context_phrase: str
-    model_name: str
-    cluster_centroids: Dict[int, Dict]
-    cluster_statistics: ClusterStatistics  
-    adaptive_thresholds: AdaptiveThresholds
-    training_sentences: List[str]  # For leakage detection
-    domain_keywords: Dict[int, List[str]]  # Cluster-specific keywords
-    creation_timestamp: str
-    version: str
+class NeighborMatch:
+    """Single nearest neighbor match result"""
+    sentence: str
+    similarity_score: float
+    rank: int
+    point_id: str
+    dl_category: Optional[str] = None
+    dl_subcategory: Optional[str] = None
+    dl_archetype: Optional[str] = None
+    semantic_similarity: Optional[float] = None
     
     def to_dict(self) -> Dict:
         return {
-            'context_phrase': self.context_phrase,
-            'model_name': self.model_name,
-            'cluster_centroids': self.cluster_centroids,
-            'cluster_statistics': self.cluster_statistics.to_dict(),
-            'adaptive_thresholds': self.adaptive_thresholds.to_dict(),
-            'training_sentences': self.training_sentences,
-            'domain_keywords': self.domain_keywords,
-            'creation_timestamp': self.creation_timestamp,
-            'version': self.version
+            'sentence': self.sentence,
+            'similarity_score': self.similarity_score,
+            'rank': self.rank,
+            'point_id': self.point_id,
+            'dl_category': self.dl_category,
+            'dl_subcategory': self.dl_subcategory,
+            'dl_archetype': self.dl_archetype,
+            'semantic_similarity': self.semantic_similarity
+        }
+
+@dataclass
+class DLAnalysis:
+    """Dominant Logic analysis from nearest neighbors"""
+    dominant_category: Optional[str] = None
+    dominant_subcategory: Optional[str] = None
+    dominant_archetype: Optional[str] = None
+    category_confidence: Optional[float] = None
+    subcategory_confidence: Optional[float] = None
+    archetype_confidence: Optional[float] = None
+    
+    def to_dict(self) -> Dict:
+        return {
+            'dominant_category': self.dominant_category,
+            'dominant_subcategory': self.dominant_subcategory,
+            'dominant_archetype': self.dominant_archetype,
+            'category_confidence': self.category_confidence,
+            'subcategory_confidence': self.subcategory_confidence,
+            'archetype_confidence': self.archetype_confidence
+        }
+
+@dataclass
+class DistributionStats:
+    """Distribution statistics for DL metadata across neighbors"""
+    category_distribution: Dict[str, int]
+    subcategory_distribution: Dict[str, int]
+    archetype_distribution: Dict[str, int]
+    total_neighbors: int
+    unique_categories: int
+    unique_subcategories: int
+    unique_archetypes: int
+    metadata_completeness: float  # Percentage of neighbors with complete DL metadata
+    
+    def to_dict(self) -> Dict:
+        return {
+            'category_distribution': self.category_distribution,
+            'subcategory_distribution': self.subcategory_distribution,
+            'archetype_distribution': self.archetype_distribution,
+            'total_neighbors': self.total_neighbors,
+            'unique_categories': self.unique_categories,
+            'unique_subcategories': self.unique_subcategories,
+            'unique_archetypes': self.unique_archetypes,
+            'metadata_completeness': self.metadata_completeness
+        }
+
+@dataclass
+class QueryMetadata:
+    """Metadata about the nearest neighbors query"""
+    query_sentence: str
+    collection_name: str
+    n_neighbors_requested: int
+    n_neighbors_returned: int
+    min_similarity_threshold: Optional[float] = None
+    include_semantic_analysis: bool = False
+    processing_timestamp: str = ""
+    execution_time_ms: Optional[float] = None
+    
+    def to_dict(self) -> Dict:
+        return {
+            'query_sentence': self.query_sentence,
+            'collection_name': self.collection_name,
+            'n_neighbors_requested': self.n_neighbors_requested,
+            'n_neighbors_returned': self.n_neighbors_returned,
+            'min_similarity_threshold': self.min_similarity_threshold,
+            'include_semantic_analysis': self.include_semantic_analysis,
+            'processing_timestamp': self.processing_timestamp,
+            'execution_time_ms': self.execution_time_ms
+        }
+
+@dataclass
+class NearestNeighborsResult:
+    """Complete result from nearest neighbors analysis"""
+    query_metadata: QueryMetadata
+    neighbors: List[NeighborMatch]
+    dominant_logic: Optional[DLAnalysis] = None
+    statistics: Optional[DistributionStats] = None
+    semantic_analysis: Optional[SemanticAnalysis] = None
+    warnings: List[str] = None
+    recommendations: List[str] = None
+    
+    def __post_init__(self):
+        """Initialize optional fields if None"""
+        if self.warnings is None:
+            self.warnings = []
+        if self.recommendations is None:
+            self.recommendations = []
+    
+    def to_dict(self) -> Dict:
+        return {
+            'query_metadata': self.query_metadata.to_dict(),
+            'neighbors': [neighbor.to_dict() for neighbor in self.neighbors],
+            'dominant_logic': self.dominant_logic.to_dict() if self.dominant_logic else None,
+            'statistics': self.statistics.to_dict() if self.statistics else None,
+            'semantic_analysis': self.semantic_analysis.to_dict() if self.semantic_analysis else None,
+            'warnings': self.warnings,
+            'recommendations': self.recommendations
         }
