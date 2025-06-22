@@ -43,7 +43,7 @@ env/
 Thumbs.db
 
 # Temporary test and demo files
-test*.py
+test.py
 demo*.py
 debug*.py
 *_demo.py
