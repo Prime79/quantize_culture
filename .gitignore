@@ -41,3 +41,35 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
+# Temporary test and demo files
+test*.py
+demo*.py
+debug*.py
+*_demo.py
+analyze_*.py
+benchmark*.py
+check_*.py
+create_*.py
+extract_*.py
+fixed_*.py
+generate_*.py
+improve_*.py
+load_*.py
+optimized_*.py
+plot_*.py
+quick_*.py
+real_*.py
+run_*.py
+simple_*.py
+update_*.py
+
+# Temporary data and output files
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+*.backup
+*.md
+!README.md
+!CHANGELOG.md
