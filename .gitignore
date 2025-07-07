@@ -64,6 +64,10 @@ run_*.py
 simple_*.py
 update_*.py
 
+# Test files (development only)
+test_*.py
+*_test.py
+
 # Temporary data and output files
 *.json
 !package.json
