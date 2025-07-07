@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Random Forest model training pipeline for dominant logic classification.
-Uses UMAP-reduced vectors from Qdrant to predict dominant logic categories.
+Uses UMAP-reduced vectors from Qdrant to predict top 3 dominant logic categories.
+Filters for: CERTAINTY, ENTREPRENEUR, FINANCIAL PERFORMANCE FIRST
 """
 
 import numpy as np
@@ -20,6 +21,7 @@ from sklearn.metrics import (
 )
 import matplotlib.pyplot as plt
 import seaborn as sns
+import xgboost as xgb
 from typing import Tuple, List, Dict, Any
 import warnings
 warnings.filterwarnings('ignore')
@@ -54,7 +56,8 @@ class DominantLogicClassifier:
         
         print(f"✅ Retrieved {len(points)} total points from Qdrant")
         
-        # Filter for non-empty dominant logic
+        # Filter for top 3 dominant logic classes only
+        target_classes = ['CERTAINTY', 'ENTREPRENEUR', 'FINANCIAL PERFORMANCE FIRST']
         umap_vectors = []
         dominant_logic_labels = []
         passages = []
@@ -62,25 +65,24 @@ class DominantLogicClassifier:
         for point in points:
             dominant_logic = point.payload.get('dominant_logic', '').strip()
             
-            # Only include records with non-empty dominant logic
-            if dominant_logic and dominant_logic.lower() not in ['', 'none', 'null', 'unknown']:
+            # Only include records with the top 3 classes
+            if dominant_logic in target_classes:
                 umap_vectors.append(point.vector)
                 dominant_logic_labels.append(dominant_logic)
                 passages.append(point.payload.get('passage', ''))
         
         umap_vectors = np.array(umap_vectors)
         
-        print(f"📈 Filtered to {len(umap_vectors)} records with valid dominant logic")
+        print(f"📈 Filtered to {len(umap_vectors)} records with top 3 dominant logic classes")
         print(f"🎯 Vector shape: {umap_vectors.shape}")
+        print(f"🎯 Target classes: {target_classes}")
         
-        # Show distribution of dominant logic categories
+        # Show distribution of the 3 selected classes
         logic_counts = pd.Series(dominant_logic_labels).value_counts()
-        print(f"\n📊 Dominant Logic Distribution:")
-        for logic, count in logic_counts.head(10).items():
-            print(f"   • {logic}: {count} samples")
-        
-        if len(logic_counts) > 10:
-            print(f"   ... and {len(logic_counts) - 10} more categories")
+        print(f"\n📊 Top 3 Classes Distribution:")
+        for logic, count in logic_counts.items():
+            percentage = count / len(dominant_logic_labels) * 100
+            print(f"   • {logic}: {count} samples ({percentage:.1f}%)")
         
         return umap_vectors, np.array(dominant_logic_labels), passages
     
@@ -255,32 +257,78 @@ class DominantLogicClassifier:
         }
     
     def plot_confusion_matrix(self, y_true: np.ndarray, y_pred: np.ndarray) -> None:
-        """Plot confusion matrix."""
+        """Plot confusion matrix and print it in terminal."""
         print(f"\n📈 Generating confusion matrix...")
         
         # Create confusion matrix
         cm = confusion_matrix(y_true, y_pred)
         
-        # Plot
-        plt.figure(figsize=(12, 10))
+        # Print confusion matrix in terminal
+        print(f"\n🎯 CONFUSION MATRIX (Terminal Display):")
+        print("=" * 60)
+        
+        # Get unique labels in order
+        unique_labels = self.label_encoder.classes_
+        
+        # Print header
+        print(f"{'':15}", end="")
+        for label in unique_labels:
+            print(f"{label[:12]:>12}", end="")
+        print()
+        
+        # Print separator
+        print("-" * (15 + 12 * len(unique_labels)))
+        
+        # Print matrix rows
+        for i, true_label in enumerate(unique_labels):
+            print(f"{true_label[:14]:15}", end="")
+            for j in range(len(unique_labels)):
+                print(f"{cm[i, j]:12d}", end="")
+            print()
+        
+        print("-" * (15 + 12 * len(unique_labels)))
+        
+        # Print summary statistics
+        total_correct = np.trace(cm)
+        total_samples = np.sum(cm)
+        accuracy = total_correct / total_samples
+        
+        print(f"\n📊 Matrix Summary:")
+        print(f"   • Total samples: {total_samples}")
+        print(f"   • Correct predictions: {total_correct}")
+        print(f"   • Accuracy: {accuracy:.4f} ({accuracy*100:.1f}%)")
+        
+        # Show per-class accuracy
+        print(f"\n📋 Per-Class Accuracy:")
+        for i, label in enumerate(unique_labels):
+            class_total = np.sum(cm[i, :])
+            class_correct = cm[i, i]
+            if class_total > 0:
+                class_acc = class_correct / class_total
+                print(f"   • {label:30}: {class_correct:2d}/{class_total:2d} = {class_acc:.3f}")
+        
+        # Plot visualization
+        plt.figure(figsize=(10, 8))
         sns.heatmap(
             cm, 
             annot=True, 
             fmt='d', 
             cmap='Blues',
-            xticklabels=self.label_encoder.classes_,
-            yticklabels=self.label_encoder.classes_
+            xticklabels=unique_labels,
+            yticklabels=unique_labels,
+            square=True
         )
-        plt.title('Confusion Matrix - Dominant Logic Classification')
+        plt.title('Confusion Matrix - Top 3 Dominant Logic Classes\n(CERTAINTY, ENTREPRENEUR, FINANCIAL PERFORMANCE FIRST)', 
+                  fontsize=14, fontweight='bold')
         plt.xlabel('Predicted')
         plt.ylabel('Actual')
         plt.xticks(rotation=45, ha='right')
         plt.yticks(rotation=0)
         plt.tight_layout()
-        plt.savefig('confusion_matrix_dominant_logic.png', dpi=300, bbox_inches='tight')
+        plt.savefig('confusion_matrix_top3_classes.png', dpi=300, bbox_inches='tight')
         plt.show()
         
-        print(f"💾 Confusion matrix saved as 'confusion_matrix_dominant_logic.png'")
+        print(f"💾 Confusion matrix saved as 'confusion_matrix_top3_classes.png'")
     
     def plot_feature_importance(self) -> None:
         """Plot feature importance."""
