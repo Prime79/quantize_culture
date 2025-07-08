@@ -23,11 +23,13 @@ class PassageInput(NamedTuple):
     """Input data structure for passages."""
     passage: str
     dominant_logic: str
+    informant: str
 
 class EmbeddingResult(NamedTuple):
     """Result data structure with embeddings."""
     passage: str
     dominant_logic: str
+    informant: str
     embedding: List[float]
 
 @ray.remote
@@ -36,10 +38,10 @@ def embed_passage(passage_input: PassageInput) -> EmbeddingResult:
     Ray remote function to embed a single passage using OpenAI API.
     
     Args:
-        passage_input: NamedTuple with passage and dominant_logic
+        passage_input: NamedTuple with passage, dominant_logic, and informant
         
     Returns:
-        EmbeddingResult: NamedTuple with passage, dominant_logic, and embedding
+        EmbeddingResult: NamedTuple with passage, dominant_logic, informant, and embedding
     """
     try:
         # Create OpenAI client
@@ -56,6 +58,7 @@ def embed_passage(passage_input: PassageInput) -> EmbeddingResult:
         return EmbeddingResult(
             passage=passage_input.passage,
             dominant_logic=passage_input.dominant_logic,
+            informant=passage_input.informant,
             embedding=embedding
         )
         
@@ -65,6 +68,7 @@ def embed_passage(passage_input: PassageInput) -> EmbeddingResult:
         return EmbeddingResult(
             passage=passage_input.passage,
             dominant_logic=passage_input.dominant_logic,
+            informant=passage_input.informant,
             embedding=[]
         )
 
@@ -73,7 +77,7 @@ def read_parquet_to_named_tuples() -> List[PassageInput]:
     Step 1 & 2: Read parquet file and collect all lines to a list of named tuples.
     
     Returns:
-        List[PassageInput]: List of named tuples with passage and dominant_logic
+        List[PassageInput]: List of named tuples with passage, dominant_logic, and informant
     """
     print("📁 Step 1: Reading parquet file...")
     
@@ -90,25 +94,23 @@ def read_parquet_to_named_tuples() -> List[PassageInput]:
     
     # Filter valid passages (non-null and meaningful length)
     valid_df = df.filter(
-        pl.col('__UNNAMED__3').is_not_null() &
-        (pl.col('__UNNAMED__3').str.len_chars() > 10)
+        pl.col('passage').is_not_null() &
+        (pl.col('passage').str.len_chars() > 10)
     )
     
     print(f"📊 Found {valid_df.height} valid passages out of {df.height} total rows")
     
     # Convert to list of named tuples
-    passage_list = []
-    for row in valid_df.iter_rows(named=True):
-        passage = row.get('__UNNAMED__3', '').strip()
-        dominant_logic = row.get('__UNNAMED__6', '').strip() if row.get('__UNNAMED__6') else ''
-        
-        if passage:  # Only add if passage is not empty
-            passage_list.append(PassageInput(
-                passage=passage,
-                dominant_logic=dominant_logic
-            ))
+    passage_list = [
+        PassageInput(
+            passage=row['passage'],
+            dominant_logic=row['dominant_logic'],
+            informant=row['informant']
+        )
+        for row in valid_df.to_dicts()
+    ]
     
-    print(f"✅ Collected {len(passage_list)} passage tuples")
+    print(f"✅ Converted {len(passage_list)} passages to named tuples")
     return passage_list
 
 def process_with_ray(passage_list: List[PassageInput]) -> List[EmbeddingResult]:
@@ -170,56 +172,56 @@ def write_to_qdrant(embedding_results: List[EmbeddingResult]) -> None:
     
     collection_name = "target_test"
     
+    # Initialize Qdrant client to use a file-based database
+    script_dir = Path(__file__).parent
+    qdrant_path = script_dir / "qdrant_db"
+    qdrant_client = QdrantClient(path=str(qdrant_path))
+    
+    # Create collection if it doesn't exist
     try:
-        # Connect to Qdrant
-        qdrant_client = QdrantClient(host="localhost", port=6333)
-        
-        # Create collection if it doesn't exist
-        try:
-            collections = qdrant_client.get_collections()
-            collection_names = [c.name for c in collections.collections]
-            
-            if collection_name not in collection_names:
-                qdrant_client.create_collection(
-                    collection_name=collection_name,
-                    vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
-                )
-                print(f"✅ Created collection: {collection_name}")
-            else:
-                print(f"📊 Using existing collection: {collection_name}")
-        
-        except Exception as e:
-            print(f"❌ Error with collection: {e}")
-            return
-        
-        # Prepare points for batch insert
-        points = []
-        for result in embedding_results:
-            point_id = str(uuid.uuid4())
-            point = PointStruct(
-                id=point_id,
-                vector=result.embedding,
-                payload={
-                    'passage': result.passage,
-                    'dominant_logic': result.dominant_logic,
-                    'embedding_model': 'text-embedding-ada-002',
-                    'created_at': time.time()
-                }
-            )
-            points.append(point)
-        
-        # Batch insert all points
-        print(f"📤 Inserting {len(points)} points into Qdrant...")
-        qdrant_client.upsert(collection_name=collection_name, points=points)
-        
-        print(f"✅ Successfully stored {len(points)} embeddings in collection '{collection_name}'")
-        
-        # Verify the insert
-        collection_info = qdrant_client.get_collection(collection_name)
-        print(f"📊 Collection now contains {collection_info.points_count} total points")
-        
+        qdrant_client.recreate_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(size=1536, distance=Distance.COSINE),
+        )
+        print(f"✅ Collection '{collection_name}' created successfully.")
     except Exception as e:
-        print(f"❌ Error writing to Qdrant: {e}")
+        print(f"⚠️ Collection '{collection_name}' already exists or error: {e}")
+
+    # Prepare points for upsert
+    points_to_upsert = []
+    for result in embedding_results:
+        if result.embedding:
+            points_to_upsert.append(
+                PointStruct(
+                    id=str(uuid.uuid4()),
+                    vector=result.embedding,
+                    payload={
+                        "passage": result.passage,
+                        "dominant_logic": result.dominant_logic,
+                        "informant": result.informant
+                    }
+                )
+            )
+            
+    if not points_to_upsert:
+        print("🤷 No valid embeddings to store.")
+        return
+
+    # Upsert points to Qdrant
+    try:
+        qdrant_client.upsert(
+            collection_name=collection_name,
+            points=points_to_upsert,
+            wait=True
+        )
+        print(f"✅ Successfully stored {len(points_to_upsert)} points in Qdrant.")
+        
+        # Verify count
+        count_result = qdrant_client.count(collection_name=collection_name, exact=True)
+        print(f"   📊 Collection count: {count_result.count}")
+
+    except Exception as e:
+        print(f"❌ Error storing embeddings in Qdrant: {e}")
         raise
 
 def main():

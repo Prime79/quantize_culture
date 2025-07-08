@@ -31,10 +31,21 @@ def import_excel_to_polars(excel_file: str = "Xylem Innovation Research Intervie
         raise FileNotFoundError(f"Excel file not found: {excel_path}")
     
     try:
-        # Try reading Excel file directly with Polars
+        # Try reading Excel file directly with Polars, skipping initial rows and setting header
         try:
-            df = pl.read_excel(excel_path)
-            print(f"✅ Successfully imported with Polars!")
+            df = pl.read_excel(excel_path, read_options={"skip_rows": 2})
+            
+            # Clean up column names
+            new_columns = [
+                'informant', 'role_type', 'time', 'passage', 
+                'provisional_logic', 'cultural_schema', 'dominant_logic', 'final_coding'
+            ]
+            df.columns = new_columns
+            
+            # Remove the extra header rows that are now part of the data
+            df = df.slice(2)
+
+            print(f"✅ Successfully imported with Polars and applied custom headers!")
         except Exception as e1:
             print(f"⚠️  Polars direct import failed: {e1}")
             print(f"🔄 Trying pandas fallback...")

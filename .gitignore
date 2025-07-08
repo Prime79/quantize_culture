@@ -77,3 +77,5 @@ test_*.py
 *.md
 !README.md
 !CHANGELOG.md
+qdrant_data/
+target/qdrant_db/
