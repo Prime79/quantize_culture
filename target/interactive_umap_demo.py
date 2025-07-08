@@ -33,11 +33,13 @@ def demonstrate_interactive_features():
         print(f"   • {class_name}: {count} passages ({percentage:.1f}%)")
     
     print(f"\n🎯 INTERACTIVE FEATURES:")
-    print(f"   • Hover over any point to see the full passage text")
+    print(f"   • Hover over any point to see the FULL passage text (no truncation)")
     print(f"   • Points are color-coded by dominant logic class")
     print(f"   • Star markers show class centroids")
     print(f"   • Zoom and pan to explore clusters")
     print(f"   • Click legend items to hide/show classes")
+    print(f"   • Legend positioned in upper right corner")
+    print(f"   • Long text is properly wrapped for readability")
     
     print(f"\n🔍 KEY INSIGHTS TO EXPLORE:")
     
@@ -63,9 +65,10 @@ def demonstrate_interactive_features():
     print(f"   1. Open one of these files in your web browser:")
     print(f"      • interactive_umap_plot.html (basic version)")
     print(f"      • enhanced_interactive_umap_plot.html (with centroids)")
-    print(f"   2. Hover over points to read the full passages")
+    print(f"   2. Hover over points to read the COMPLETE passages (no truncation)")
     print(f"   3. Look for clustering patterns and outliers")
-    print(f"   4. Use the legend to focus on specific classes")
+    print(f"   4. Use the legend (upper right) to focus on specific classes")
+    print(f"   5. Zoom and pan to explore different regions in detail")
     
     print("="*70)
     

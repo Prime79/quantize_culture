@@ -23,17 +23,24 @@ def load_umap_data(csv_path):
     print(df['Dominant_Logic'].value_counts())
     return df
 
-def truncate_text(text, max_length=100):
-    """Truncate text for better display in hover tooltips."""
-    if len(text) <= max_length:
-        return text
-    return text[:max_length] + "..."
+def wrap_text_for_hover(text, max_line_length=80):
+    """Wrap long text for better display in hover tooltips."""
+    import textwrap
+    # Split into lines and wrap each line
+    lines = text.split('\n')
+    wrapped_lines = []
+    for line in lines:
+        if len(line) <= max_line_length:
+            wrapped_lines.append(line)
+        else:
+            wrapped_lines.extend(textwrap.wrap(line, width=max_line_length))
+    return '<br>'.join(wrapped_lines)
 
 def create_interactive_umap_plot(df, output_path="interactive_umap_plot.html"):
     """Create an interactive UMAP scatterplot with Plotly."""
     
-    # Create truncated text for hover display
-    df['Passage_Short'] = df['Passage'].apply(lambda x: truncate_text(x, 150))
+    # Create wrapped text for better hover display
+    df['Passage_Wrapped'] = df['Passage'].apply(lambda x: wrap_text_for_hover(x, 80))
     
     # Define colors for each class
     color_map = {
@@ -54,7 +61,7 @@ def create_interactive_umap_plot(df, output_path="interactive_umap_plot.html"):
             'UMAP_2': ':.3f',
             'Dominant_Logic': True,
             'Passage': False,  # Don't show in hover by default
-            'Passage_Short': False  # Don't show in hover by default
+            'Passage_Wrapped': False  # Don't show in hover by default
         },
         title='Interactive 2D UMAP Visualization of Dominant Logic Classifications<br><sub>Hover over points to see passages</sub>',
         labels={
@@ -66,7 +73,7 @@ def create_interactive_umap_plot(df, output_path="interactive_umap_plot.html"):
         height=700
     )
     
-    # Customize hover template to show full passage text
+    # Customize hover template to show full passage text (no truncation)
     fig.update_traces(
         hovertemplate='<b>%{customdata[2]}</b><br>' +
                       'UMAP_1: %{x:.3f}<br>' +
@@ -74,7 +81,15 @@ def create_interactive_umap_plot(df, output_path="interactive_umap_plot.html"):
                       '<br><b>Passage:</b><br>' +
                       '%{customdata[3]}<br>' +
                       '<extra></extra>',
-        customdata=df[['UMAP_1', 'UMAP_2', 'Dominant_Logic', 'Passage']].values
+        customdata=df[['UMAP_1', 'UMAP_2', 'Dominant_Logic', 'Passage_Wrapped']].values,
+        hoverlabel=dict(
+            bgcolor="white",
+            bordercolor="black",
+            font_size=12,
+            font_family="Arial",
+            align="left",
+            namelength=-1  # Show full text without truncation
+        )
     )
     
     # Update layout for better aesthetics
@@ -85,9 +100,9 @@ def create_interactive_umap_plot(df, output_path="interactive_umap_plot.html"):
         legend=dict(
             yanchor="top",
             y=0.99,
-            xanchor="left",
-            x=0.01,
-            bgcolor="rgba(255,255,255,0.8)",
+            xanchor="right",
+            x=0.99,
+            bgcolor="rgba(255,255,255,0.9)",
             bordercolor="rgba(0,0,0,0.2)",
             borderwidth=1
         ),
@@ -140,8 +155,8 @@ def create_enhanced_interactive_plot(df, output_path="enhanced_interactive_umap_
     # Calculate class centroids
     centroids = df.groupby('Dominant_Logic')[['UMAP_1', 'UMAP_2']].mean()
     
-    # Create truncated text for hover display
-    df['Passage_Short'] = df['Passage'].apply(lambda x: truncate_text(x, 150))
+    # Create wrapped text for better hover display
+    df['Passage_Wrapped'] = df['Passage'].apply(lambda x: wrap_text_for_hover(x, 80))
     
     # Define colors for each class
     color_map = {
@@ -168,13 +183,21 @@ def create_enhanced_interactive_plot(df, output_path="enhanced_interactive_umap_
                 opacity=0.7,
                 line=dict(width=1, color='white')
             ),
-            customdata=class_data[['Dominant_Logic', 'Passage']].values,
+            customdata=class_data[['Dominant_Logic', 'Passage_Wrapped']].values,
             hovertemplate='<b>%{customdata[0]}</b><br>' +
                          'UMAP_1: %{x:.3f}<br>' +
                          'UMAP_2: %{y:.3f}<br>' +
                          '<br><b>Passage:</b><br>' +
                          '%{customdata[1]}<br>' +
-                         '<extra></extra>'
+                         '<extra></extra>',
+            hoverlabel=dict(
+                bgcolor="white",
+                bordercolor="black",
+                font_size=12,
+                font_family="Arial",
+                align="left",
+                namelength=-1  # Show full text without truncation
+            )
         ))
     
     # Add centroid markers
@@ -215,8 +238,8 @@ def create_enhanced_interactive_plot(df, output_path="enhanced_interactive_umap_
         legend=dict(
             yanchor="top",
             y=0.99,
-            xanchor="left",
-            x=0.01,
+            xanchor="right",
+            x=0.99,
             bgcolor="rgba(255,255,255,0.9)",
             bordercolor="rgba(0,0,0,0.2)",
             borderwidth=1
